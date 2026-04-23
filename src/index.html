@@ -28,6 +28,10 @@
         <li><a href="#stories" class="nav-link">Success Stories</a></li>
       </ul>
       <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
         <a href="#" class="btn btn-ghost" id="nav-login">Login</a>
         <a href="#" class="btn btn-primary" id="nav-cta">Get Started Free</a>
       </div>
@@ -462,6 +466,50 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== NEWSLETTER ===== -->
+  <section class="section newsletter-section" id="newsletter">
+    <div class="container">
+      <div class="newsletter-inner" id="newsletter-inner">
+        <div class="newsletter-content">
+          <h2 class="newsletter-title">Stay in the Loop</h2>
+          <p class="newsletter-desc">Get weekly job alerts, new tools, and interview tips straight to your inbox.</p>
+        </div>
+        <form class="newsletter-form" id="newsletter-form">
+          <div class="form-group-inline">
+            <input type="email" class="form-input" id="newsletter-email" placeholder="Enter your email" required />
+            <button type="submit" class="btn btn-primary" id="newsletter-submit">Subscribe</button>
+          </div>
+          <div class="form-message" id="newsletter-message"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT MODAL ===== -->
+  <div class="modal-overlay" id="contact-modal">
+    <div class="modal" id="contact-modal-inner">
+      <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <h2 class="modal-title">Get in Touch</h2>
+      <p class="modal-desc">Have a question or feedback? We'd love to hear from you.</p>
+      <form id="contact-form">
+        <div class="form-group">
+          <label for="contact-name">Name</label>
+          <input type="text" class="form-input" id="contact-name" placeholder="Your name" required />
+        </div>
+        <div class="form-group">
+          <label for="contact-email">Email</label>
+          <input type="email" class="form-input" id="contact-email" placeholder="you@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="contact-message">Message</label>
+          <textarea class="form-input form-textarea" id="contact-message" placeholder="Your message..." rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="contact-submit">Send Message</button>
+        <div class="form-message" id="contact-form-message"></div>
+      </form>
+    </div>
+  </div>
 
   <!-- ===== FOOTER ===== -->
   <footer class="footer" id="footer">
