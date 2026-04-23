@@ -1,0 +1,17 @@
+{
+  "name": "lets-code",
+  "version": "1.0.0",
+  "description": "Let's Code — Land Your Dream Tech Job",
+  "source": "src/index.html",
+  "scripts": {
+    "dev": "parcel src/index.html --open",
+    "build": "parcel build src/index.html",
+    "clean": "rm -rf dist .parcel-cache"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.13.3"
+  }
+}

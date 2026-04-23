@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Let's Code — Land Your Dream Tech Job</title>
+  <meta name="description" content="Everything you need to land your dream tech job. 6 free AI tools, 1000+ interview resources, company PYQs, and a community of 1,00,000+ engineers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo" id="logo-link">
+        <span class="logo-icon">{"</span>
+        <span class="logo-text">Let's Code</span>
+        <span class="logo-icon">}</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#tools" class="nav-link">AI Tools</a></li>
+        <li><a href="#resources" class="nav-link">Resources</a></li>
+        <li><a href="#companies" class="nav-link">Company PYQs</a></li>
+        <li><a href="#community" class="nav-link">Community</a></li>
+        <li><a href="#stories" class="nav-link">Success Stories</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="#" class="btn btn-ghost" id="nav-login">Login</a>
+        <a href="#" class="btn btn-primary" id="nav-cta">Get Started Free</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="hero-grid"></div>
+      <div class="hero-orb orb-1"></div>
+      <div class="hero-orb orb-2"></div>
+      <div class="hero-orb orb-3"></div>
+    </div>
+    <div class="container">
+      <div class="hero-badge" id="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Trusted by 1,00,000+ Engineers</span>
+        <span class="badge-arrow">→</span>
+      </div>
+      <h1 class="hero-title" id="hero-title">
+        Everything You Need to<br/>
+        <span class="gradient-text">Land Your Dream</span><br/>
+        Tech Job.
+      </h1>
+      <p class="hero-subtitle" id="hero-subtitle">
+        6 free AI-powered tools · 1000+ interview resources · Company PYQs from top MNCs.<br/>
+        From student to employed — we've got your back.
+      </p>
+      <div class="hero-actions" id="hero-actions">
+        <a href="#" class="btn btn-hero-primary" id="hero-btn-score">
+          <span class="btn-icon">🎯</span>
+          Check Job Ready Score — Free
+        </a>
+        <a href="#" class="btn btn-hero-secondary" id="hero-btn-mock">
+          <span class="btn-icon">🤖</span>
+          Start Mock Interview
+        </a>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div class="stat-card">
+          <div class="stat-number" data-count="100000">0</div>
+          <div class="stat-label">Engineers Helped</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card">
+          <div class="stat-number" data-count="6">0</div>
+          <div class="stat-label">Free AI Tools</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card">
+          <div class="stat-number" data-count="1000">0</div>
+          <div class="stat-label">Interview Resources</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card">
+          <div class="stat-number" data-count="70">0</div>
+          <div class="stat-label">Companies Covered</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll-indicator">
+      <div class="scroll-dot"></div>
+    </div>
+  </section>
+
+  <!-- ===== MARQUEE COMPANIES ===== -->
+  <section class="marquee-section" id="companies-bar">
+    <div class="marquee-label">Helped engineers get into</div>
+    <div class="marquee-wrapper">
+      <div class="marquee-track">
+        <span class="company-chip google">Google</span>
+        <span class="company-chip amazon">Amazon</span>
+        <span class="company-chip meta">Meta</span>
+        <span class="company-chip apple">Apple</span>
+        <span class="company-chip microsoft">Microsoft</span>
+        <span class="company-chip nvidia">Nvidia</span>
+        <span class="company-chip goldman">Goldman Sachs</span>
+        <span class="company-chip flipkart">Flipkart</span>
+        <span class="company-chip uber">Uber</span>
+        <span class="company-chip adobe">Adobe</span>
+        <span class="company-chip netflix">Netflix</span>
+        <span class="company-chip oracle">Oracle</span>
+        <!-- Duplicate for seamless loop -->
+        <span class="company-chip google">Google</span>
+        <span class="company-chip amazon">Amazon</span>
+        <span class="company-chip meta">Meta</span>
+        <span class="company-chip apple">Apple</span>
+        <span class="company-chip microsoft">Microsoft</span>
+        <span class="company-chip nvidia">Nvidia</span>
+        <span class="company-chip goldman">Goldman Sachs</span>
+        <span class="company-chip flipkart">Flipkart</span>
+        <span class="company-chip uber">Uber</span>
+        <span class="company-chip adobe">Adobe</span>
+        <span class="company-chip netflix">Netflix</span>
+        <span class="company-chip oracle">Oracle</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== AI TOOLS ===== -->
+  <section class="section tools-section" id="tools">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">🛠️ AI Toolkit</div>
+        <h2 class="section-title">6 Free AI Tools to <span class="gradient-text">Supercharge</span> Your Job Search</h2>
+        <p class="section-subtitle">No premium subscription needed. These tools are 100% free — powered by the latest AI models.</p>
+      </div>
+      <div class="tools-grid" id="tools-grid">
+        <div class="tool-card featured" id="tool-job-score">
+          <div class="tool-icon">🎯</div>
+          <div class="tool-badge">Most Popular</div>
+          <h3 class="tool-name">Job Ready Score</h3>
+          <p class="tool-desc">Get a comprehensive AI analysis of your Resume, LinkedIn, and GitHub profile with a personalized 90-day action plan to maximize your chances.</p>
+          <div class="tool-tags">
+            <span class="tag">Resume Analysis</span>
+            <span class="tag">LinkedIn</span>
+            <span class="tag">GitHub</span>
+          </div>
+          <a href="#" class="btn btn-tool" id="tool-btn-score">Try Now →</a>
+        </div>
+        <div class="tool-card" id="tool-mock">
+          <div class="tool-icon">🤖</div>
+          <h3 class="tool-name">Mock Interview</h3>
+          <p class="tool-desc">Practice with AI-generated MCQ tests across 35+ topics covering DSA, CS fundamentals, aptitude, and system design.</p>
+          <div class="tool-tags">
+            <span class="tag">DSA</span>
+            <span class="tag">CS Fundamentals</span>
+            <span class="tag">35+ Topics</span>
+          </div>
+          <a href="#" class="btn btn-tool" id="tool-btn-mock">Try Now →</a>
+        </div>
+        <div class="tool-card" id="tool-resume">
+          <div class="tool-icon">📄</div>
+          <h3 class="tool-name">AI Resume Studio</h3>
+          <p class="tool-desc">Score, edit, and improve your resume with AI. Get ATS optimization tips and export as PDF or DOC instantly.</p>
+          <div class="tool-tags">
+            <span class="tag">ATS Score</span>
+            <span class="tag">PDF Export</span>
+            <span class="tag">AI Suggestions</span>
+          </div>
+          <a href="#" class="btn btn-tool" id="tool-btn-resume">Try Now →</a>
+        </div>
+        <div class="tool-card" id="tool-linkedin">
+          <div class="tool-icon">💼</div>
+          <h3 class="tool-name">LinkedIn Optimizer</h3>
+          <p class="tool-desc">Enhance your LinkedIn profile visibility for recruiters. Get keyword suggestions and profile strength scores.</p>
+          <div class="tool-tags">
+            <span class="tag">Recruiter Visibility</span>
+            <span class="tag">Keywords</span>
+          </div>
+          <a href="#" class="btn btn-tool" id="tool-btn-linkedin">Try Now →</a>
+        </div>
+        <div class="tool-card" id="tool-jobs">
+          <div class="tool-icon">🔍</div>
+          <h3 class="tool-name">AI Job Finder</h3>
+          <p class="tool-desc">Match your resume with live job listings automatically. Get a compatibility score for each role before you apply.</p>
+          <div class="tool-tags">
+            <span class="tag">Live Jobs</span>
+            <span class="tag">Match Score</span>
+          </div>
+          <a href="#" class="btn btn-tool" id="tool-btn-jobs">Try Now →</a>
+        </div>
+        <div class="tool-card" id="tool-cover">
+          <div class="tool-icon">✉️</div>
+          <h3 class="tool-name">Cover Letter AI</h3>
+          <p class="tool-desc">Generate ATS-optimized cover letters tailored to specific job descriptions in seconds. Stand out from the crowd.</p>
+          <div class="tool-tags">
+            <span class="tag">ATS Optimized</span>
+            <span class="tag">JD-based</span>
+          </div>
+          <a href="#" class="btn btn-tool" id="tool-btn-cover">Try Now →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RESOURCES ===== -->
+  <section class="section resources-section" id="resources">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">📚 Resources</div>
+        <h2 class="section-title">Everything You Need to <span class="gradient-text">Ace the Interview</span></h2>
+        <p class="section-subtitle">1000+ curated interview questions, roadmaps, and guides — completely free.</p>
+      </div>
+      <div class="resources-grid">
+        <!-- Roadmaps -->
+        <div class="resource-category" id="roadmaps-card">
+          <div class="resource-header">
+            <span class="resource-icon">🗺️</span>
+            <h3>Learning Roadmaps</h3>
+          </div>
+          <ul class="resource-list">
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">DSA Roadmap</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">System Design Roadmap</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">DevOps Roadmap</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">ML & AI Roadmap</a></li>
+          </ul>
+        </div>
+        <!-- Interview Questions -->
+        <div class="resource-category" id="interview-card">
+          <div class="resource-header">
+            <span class="resource-icon">❓</span>
+            <h3>Interview Questions</h3>
+          </div>
+          <ul class="resource-list">
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">OOPs Questions</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">JavaScript Questions</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">Python Questions</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">React Questions</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">DBMS & OS Questions</a></li>
+            <li class="resource-item"><span class="ri-dot"></span><a href="#">SQL Questions</a></li>
+          </ul>
+        </div>
+        <!-- DSA Challenge -->
+        <div class="resource-category highlight-card" id="dsa-challenge-card">
+          <div class="resource-header">
+            <span class="resource-icon">🔥</span>
+            <h3>100 Days DSA Challenge</h3>
+          </div>
+          <p class="resource-desc">Join our community-powered 100-day DSA series. Build consistency, track progress, and master coding patterns step by step.</p>
+          <a href="#" class="btn btn-outline" id="dsa-btn">Join Challenge →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMPANY PYQs ===== -->
+  <section class="section pyq-section" id="companies">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">🏢 Company PYQs</div>
+        <h2 class="section-title">Previous Year Questions from <span class="gradient-text">Top Tech Giants</span></h2>
+        <p class="section-subtitle">Prepare with real interview questions from companies that matter.</p>
+      </div>
+      <div class="companies-grid" id="companies-grid">
+        <div class="company-card" id="company-google">
+          <div class="company-logo-circle google-bg">G</div>
+          <div class="company-info">
+            <h4>Google</h4>
+            <span class="company-count">250+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+        <div class="company-card" id="company-amazon">
+          <div class="company-logo-circle amazon-bg">A</div>
+          <div class="company-info">
+            <h4>Amazon</h4>
+            <span class="company-count">300+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+        <div class="company-card" id="company-meta">
+          <div class="company-logo-circle meta-bg">M</div>
+          <div class="company-info">
+            <h4>Meta</h4>
+            <span class="company-count">180+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+        <div class="company-card" id="company-microsoft">
+          <div class="company-logo-circle ms-bg">Ms</div>
+          <div class="company-info">
+            <h4>Microsoft</h4>
+            <span class="company-count">220+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+        <div class="company-card" id="company-nvidia">
+          <div class="company-logo-circle nv-bg">N</div>
+          <div class="company-info">
+            <h4>Nvidia</h4>
+            <span class="company-count">120+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+        <div class="company-card" id="company-goldman">
+          <div class="company-logo-circle gs-bg">GS</div>
+          <div class="company-info">
+            <h4>Goldman Sachs</h4>
+            <span class="company-count">160+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+        <div class="company-card" id="company-apple">
+          <div class="company-logo-circle ap-bg">🍎</div>
+          <div class="company-info">
+            <h4>Apple</h4>
+            <span class="company-count">140+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+        <div class="company-card" id="company-netflix">
+          <div class="company-logo-circle nf-bg">N</div>
+          <div class="company-info">
+            <h4>Netflix</h4>
+            <span class="company-count">100+ Questions</span>
+          </div>
+          <span class="company-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SUCCESS STORIES ===== -->
+  <section class="section stories-section" id="stories">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">🌟 Success Stories</div>
+        <h2 class="section-title">Real People, <span class="gradient-text">Real Results</span></h2>
+        <p class="section-subtitle">83+ interview experiences from 70+ companies with a 91.67% success rate.</p>
+      </div>
+      <div class="stories-grid" id="stories-grid">
+        <div class="story-card" id="story-1">
+          <div class="story-header">
+            <div class="story-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">A</div>
+            <div class="story-meta">
+              <div class="story-name">Aarav Sharma</div>
+              <div class="story-role">SDE-1 @ Google</div>
+            </div>
+            <div class="story-badge success">Placed ✓</div>
+          </div>
+          <p class="story-text">"The Job Ready Score gave me exactly what I needed — a clear action plan. I followed it for 3 months and got my dream offer at Google. The AI tools are genuinely game-changing."</p>
+          <div class="story-tags">
+            <span class="s-tag">AI Resume Studio</span>
+            <span class="s-tag">Mock Interview</span>
+          </div>
+        </div>
+        <div class="story-card" id="story-2">
+          <div class="story-header">
+            <div class="story-avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">P</div>
+            <div class="story-meta">
+              <div class="story-name">Priya Nair</div>
+              <div class="story-role">Frontend Engineer @ Meta</div>
+            </div>
+            <div class="story-badge success">Placed ✓</div>
+          </div>
+          <p class="story-text">"The LinkedIn Optimizer doubled my recruiter messages within a week. Combined with the cover letter tool, I landed interviews at 5 top companies simultaneously."</p>
+          <div class="story-tags">
+            <span class="s-tag">LinkedIn Optimizer</span>
+            <span class="s-tag">Cover Letter AI</span>
+          </div>
+        </div>
+        <div class="story-card" id="story-3">
+          <div class="story-header">
+            <div class="story-avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">R</div>
+            <div class="story-meta">
+              <div class="story-name">Rohan Gupta</div>
+              <div class="story-role">Backend Developer @ Amazon</div>
+            </div>
+            <div class="story-badge success">Placed ✓</div>
+          </div>
+          <p class="story-text">"Company PYQs were incredibly accurate. I saw almost the same questions in my Amazon interview. Let's Code is the most underrated resource for placements."</p>
+          <div class="story-tags">
+            <span class="s-tag">Company PYQs</span>
+            <span class="s-tag">DSA Challenge</span>
+          </div>
+        </div>
+      </div>
+      <div class="success-rate-bar" id="success-rate-bar">
+        <div class="sr-stat">
+          <div class="sr-number">91.67%</div>
+          <div class="sr-label">Success Rate</div>
+        </div>
+        <div class="sr-stat">
+          <div class="sr-number">83+</div>
+          <div class="sr-label">Interview Stories</div>
+        </div>
+        <div class="sr-stat">
+          <div class="sr-number">70+</div>
+          <div class="sr-label">Companies</div>
+        </div>
+        <div class="sr-stat">
+          <div class="sr-number">500+</div>
+          <div class="sr-label">Success Stories</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMMUNITY ===== -->
+  <section class="section community-section" id="community">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">👥 Community</div>
+        <h2 class="section-title">Join 50,000+ Engineers <span class="gradient-text">Growing Together</span></h2>
+        <p class="section-subtitle">Active communities across Discord, WhatsApp, and Telegram — 16+ tech & city groups.</p>
+      </div>
+      <div class="community-grid" id="community-grid">
+        <div class="comm-card discord" id="comm-discord">
+          <div class="comm-icon">💬</div>
+          <h3>Discord Community</h3>
+          <p>Join 16+ tech and city groups. Network with engineers, share resources, and get real-time help.</p>
+          <div class="comm-stat">16+ Groups</div>
+          <a href="#" class="btn btn-comm" id="btn-discord">Join Discord →</a>
+        </div>
+        <div class="comm-card whatsapp" id="comm-whatsapp">
+          <div class="comm-icon">📱</div>
+          <h3>WhatsApp Groups</h3>
+          <p>Stay updated with job alerts, interview tips, and daily coding challenges right on WhatsApp.</p>
+          <div class="comm-stat">Daily Updates</div>
+          <a href="#" class="btn btn-comm" id="btn-whatsapp">Join WhatsApp →</a>
+        </div>
+        <div class="comm-card telegram" id="comm-telegram">
+          <div class="comm-icon">✈️</div>
+          <h3>Telegram Channel</h3>
+          <p>Follow our Telegram for curated job postings, company-specific prep materials, and more.</p>
+          <div class="comm-stat">Job Alerts Daily</div>
+          <a href="#" class="btn btn-comm" id="btn-telegram">Join Telegram →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA SECTION ===== -->
+  <section class="cta-section" id="cta">
+    <div class="container">
+      <div class="cta-inner" id="cta-inner">
+        <div class="cta-orb cta-orb-1"></div>
+        <div class="cta-orb cta-orb-2"></div>
+        <div class="cta-tag">🚀 Free Forever</div>
+        <h2 class="cta-title">Your Dream Tech Job is <span class="gradient-text-light">One Click Away</span></h2>
+        <p class="cta-subtitle">Start with your Job Ready Score — get a personalized AI-driven roadmap to your next offer in 90 days.</p>
+        <div class="cta-actions">
+          <a href="#" class="btn btn-cta-primary" id="cta-btn-primary">Get My Job Ready Score — Free</a>
+          <a href="#" class="btn btn-cta-secondary" id="cta-btn-secondary">Start Mock Interview</a>
+        </div>
+        <div class="cta-note">No credit card · No signup required for AI tools · 100% Free</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">
+            <span class="logo-icon">{"</span>
+            <span class="logo-text">Let's Code</span>
+            <span class="logo-icon">}</span>
+          </a>
+          <p class="footer-tagline">From student to employed.<br/>We've got your back, every step of the way.</p>
+          <div class="footer-socials">
+            <a href="#" class="social-btn" id="social-twitter" aria-label="Twitter">𝕏</a>
+            <a href="#" class="social-btn" id="social-linkedin" aria-label="LinkedIn">in</a>
+            <a href="#" class="social-btn" id="social-github" aria-label="GitHub">⌥</a>
+            <a href="#" class="social-btn" id="social-discord" aria-label="Discord">🎮</a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4>AI Tools</h4>
+          <ul>
+            <li><a href="#">Job Ready Score</a></li>
+            <li><a href="#">Mock Interview</a></li>
+            <li><a href="#">AI Resume Studio</a></li>
+            <li><a href="#">LinkedIn Optimizer</a></li>
+            <li><a href="#">AI Job Finder</a></li>
+            <li><a href="#">Cover Letter AI</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#">DSA Roadmap</a></li>
+            <li><a href="#">System Design</a></li>
+            <li><a href="#">Interview Questions</a></li>
+            <li><a href="#">Company PYQs</a></li>
+            <li><a href="#">100 Days DSA</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4>Community</h4>
+          <ul>
+            <li><a href="#">Discord</a></li>
+            <li><a href="#">WhatsApp Groups</a></li>
+            <li><a href="#">Telegram</a></li>
+            <li><a href="#">Success Stories</a></li>
+            <li><a href="#">Startup Explorer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 Let's Code. Made with ❤️ for engineers, by engineers.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>
