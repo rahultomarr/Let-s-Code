@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LaTeX Resume Builder — Let's Code</title>
+  <meta name="description" content="Build your resume with LaTeX. Choose from 8 professional templates, edit with a live preview editor — like Overleaf, completely free." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-bracket">{" </span>Let's Code<span class="logo-bracket"> }</span>
+      </a>
+      <div class="nav-pill">📄 LaTeX Resume Builder</div>
+      <div class="nav-right">
+        <button class="theme-toggle" id="theme-toggle">☀️</button>
+        <a href="index.html" class="btn-ghost">← Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== TEMPLATE GALLERY (Step 1) ===== -->
+  <div class="gallery-page" id="gallery-page">
+    <div class="gallery-hero">
+      <div class="gh-grid"></div>
+      <div class="gh-orb gh-orb-1"></div>
+      <div class="gh-orb gh-orb-2"></div>
+      <div class="gh-inner">
+        <div class="gh-badge"><span class="gb-dot"></span>8 Professional Templates · LaTeX · Free</div>
+        <h1 class="gh-title">Build Your Resume <span class="gtext">with LaTeX</span></h1>
+        <p class="gh-sub">Choose a template, edit with full LaTeX syntax, see the live preview — just like Overleaf.</p>
+      </div>
+    </div>
+
+    <div class="gallery-body">
+      <div class="gallery-filter">
+        <button class="filt-btn active" data-cat="all">All Templates</button>
+        <button class="filt-btn" data-cat="modern">Modern</button>
+        <button class="filt-btn" data-cat="classic">Classic</button>
+        <button class="filt-btn" data-cat="minimal">Minimal</button>
+        <button class="filt-btn" data-cat="creative">Creative</button>
+      </div>
+
+      <div class="template-grid" id="template-grid"></div>
+    </div>
+  </div>
+
+  <!-- ===== EDITOR PAGE (Step 2) ===== -->
+  <div class="editor-page" id="editor-page" style="display:none">
+
+    <!-- Editor Navbar -->
+    <div class="editor-nav">
+      <div class="en-left">
+        <button class="en-back" id="back-to-gallery">← Templates</button>
+        <div class="en-file">
+          <span class="en-file-icon">📄</span>
+          <span class="en-file-name" id="current-template-name">resume.tex</span>
+          <span class="en-saved" id="save-status">● Saved</span>
+        </div>
+      </div>
+      <div class="en-center">
+        <button class="en-btn" id="compile-btn" onclick="compileLatex()">
+          <span id="compile-spinner" class="compile-spin" style="display:none">⟳</span>
+          ▶ Compile
+        </button>
+        <span class="en-shortcut">Ctrl+Enter</span>
+      </div>
+      <div class="en-right">
+        <button class="en-btn en-btn-outline" onclick="formatCode()">⌘ Format</button>
+        <button class="en-btn en-btn-outline" id="theme-btn" onclick="toggleEditorTheme()">🌙 Theme</button>
+        <button class="en-btn en-btn-green" onclick="downloadPDF()">📥 PDF</button>
+        <button class="en-btn en-btn-outline" onclick="downloadTex()">⬇ .tex</button>
+      </div>
+    </div>
+
+    <!-- Editor Layout -->
+    <div class="editor-layout">
+
+      <!-- Left: File Tree + Editor -->
+      <div class="editor-left">
+        <div class="file-tree">
+          <div class="ft-header">FILES</div>
+          <div class="ft-item ft-active">📄 main.tex</div>
+        </div>
+        <div class="code-editor-wrap">
+          <div class="ce-header">
+            <span class="ce-lang">LaTeX</span>
+            <div class="ce-controls">
+              <span class="ce-dot cd-r"></span>
+              <span class="ce-dot cd-y"></span>
+              <span class="ce-dot cd-g"></span>
+            </div>
+          </div>
+          <textarea id="latex-editor"></textarea>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="editor-divider" id="editor-divider"></div>
+
+      <!-- Right: Preview -->
+      <div class="editor-right">
+        <div class="preview-header">
+          <div class="ph-left">
+            <span class="ph-title">Preview</span>
+            <span class="ph-compile-time" id="compile-time"></span>
+          </div>
+          <div class="ph-right">
+            <button class="ph-btn" onclick="zoomPreview(-10)">−</button>
+            <span class="ph-zoom" id="zoom-val">100%</span>
+            <button class="ph-btn" onclick="zoomPreview(10)">+</button>
+            <button class="ph-btn" onclick="fitPreview()">Fit</button>
+          </div>
+        </div>
+        <div class="preview-container" id="preview-container">
+          <div class="preview-page" id="preview-page">
+            <div class="preview-placeholder" id="preview-placeholder">
+              <div class="pp-icon">▶</div>
+              <div class="pp-text">Click <strong>Compile</strong> to see your resume</div>
+              <div class="pp-hint">Or press <kbd>Ctrl+Enter</kbd></div>
+            </div>
+            <div id="resume-preview" style="display:none"></div>
+          </div>
+        </div>
+        <div class="preview-footer">
+          <div id="error-panel" class="error-panel" style="display:none"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span id="sb-cursor">Ln 1, Col 1</span>
+      <span id="sb-chars">0 chars</span>
+      <span>UTF-8</span>
+      <span>LaTeX</span>
+      <span id="sb-words">0 words</span>
+    </div>
+  </div>
+
+  <script type="module" src="resume-builder.js"></script>
+</body>
+</html>
