@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Ready Score — Let's Code</title>
+  <meta name="description" content="Get your personalized Job Ready Score. Analyze your resume, LinkedIn profile, and coding profiles to know exactly where you stand and how to improve." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="job-ready-score.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo" id="logo-link">
+        <span class="logo-icon">{"</span>
+        <span class="logo-text">Let's Code</span>
+        <span class="logo-icon">}</span>
+      </a>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
+        <a href="index.html" class="btn btn-ghost">← Back to Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="tool-main">
+
+    <!-- HERO STRIP -->
+    <section class="tool-hero">
+      <div class="tool-hero-bg">
+        <div class="hero-orb orb-1"></div>
+        <div class="hero-orb orb-2"></div>
+        <div class="hero-grid"></div>
+      </div>
+      <div class="container">
+        <div class="tool-hero-badge"><span class="badge-dot"></span> Free · AI-Powered · Instant Results</div>
+        <h1 class="tool-hero-title">Your <span class="gradient-text">Job Ready Score</span></h1>
+        <p class="tool-hero-sub">Analyze your Resume, LinkedIn, and Coding profiles to get a comprehensive score and a personalized 90-day action plan.</p>
+        <!-- progress steps -->
+        <div class="progress-steps" id="progress-steps">
+          <div class="step-item active" id="pstep-1">
+            <div class="step-circle">1</div>
+            <span>Resume</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="pstep-2">
+            <div class="step-circle">2</div>
+            <span>LinkedIn</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="pstep-3">
+            <div class="step-circle">3</div>
+            <span>Coding</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="pstep-4">
+            <div class="step-circle">🎯</div>
+            <span>Score</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WIZARD CONTAINER -->
+    <section class="wizard-section">
+      <div class="container">
+
+        <!-- ===== STEP 1: RESUME ===== -->
+        <div class="wizard-step" id="step-1">
+          <div class="step-header">
+            <div class="step-icon">📄</div>
+            <div>
+              <h2>Resume Analysis</h2>
+              <p>Paste your resume text below. We'll analyze structure, keywords, ATS compatibility, and content quality.</p>
+            </div>
+          </div>
+
+          <div class="input-grid-2">
+            <div class="form-group">
+              <label for="resume-name">Your Name *</label>
+              <input type="text" id="resume-name" class="form-input" placeholder="Rahul Tomar" />
+            </div>
+            <div class="form-group">
+              <label for="resume-role">Target Role *</label>
+              <input type="text" id="resume-role" class="form-input" placeholder="e.g. SDE-1, Frontend Engineer" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="resume-text">Paste Resume Content *</label>
+            <textarea id="resume-text" class="form-input form-textarea" rows="14" placeholder="Paste your entire resume text here — include your skills, experience, education, projects, and any other sections..."></textarea>
+            <div class="input-hint">Tip: Copy everything from your resume doc and paste it here. The more content, the better the analysis.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="resume-jd">Target Job Description (Optional)</label>
+            <textarea id="resume-jd" class="form-input form-textarea" rows="5" placeholder="Paste the job description you're targeting — we'll check your resume's match percentage..."></textarea>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn btn-primary btn-lg" id="analyze-resume-btn" onclick="analyzeResume()">
+              <span class="btn-loader" id="resume-loader" style="display:none">⏳</span>
+              Analyze Resume →
+            </button>
+          </div>
+
+          <!-- Resume Result Card -->
+          <div class="result-card" id="resume-result" style="display:none">
+            <div class="result-header">
+              <h3>Resume Analysis Results</h3>
+              <div class="score-badge" id="resume-score-badge">0</div>
+            </div>
+            <div class="score-breakdown" id="resume-breakdown"></div>
+            <div class="improvements-list" id="resume-improvements"></div>
+            <div class="step-actions" style="margin-top:24px">
+              <button class="btn btn-primary btn-lg" onclick="goToStep(2)">Continue to LinkedIn →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== STEP 2: LINKEDIN ===== -->
+        <div class="wizard-step" id="step-2" style="display:none">
+          <div class="step-header">
+            <div class="step-icon">💼</div>
+            <div>
+              <h2>LinkedIn Profile Analysis</h2>
+              <p>Enter your LinkedIn details. We'll score your profile for recruiter visibility and completeness.</p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="li-url">LinkedIn Profile URL</label>
+            <input type="url" id="li-url" class="form-input" placeholder="https://linkedin.com/in/yourname" />
+          </div>
+
+          <div class="linkedin-checklist">
+            <h4>Profile Completeness Checklist</h4>
+            <p class="input-hint">Check everything you have on your LinkedIn profile:</p>
+            <div class="checklist-grid">
+              <label class="check-item"><input type="checkbox" id="li-photo" /><span class="checkmark"></span>Professional Photo</label>
+              <label class="check-item"><input type="checkbox" id="li-headline" /><span class="checkmark"></span>Custom Headline</label>
+              <label class="check-item"><input type="checkbox" id="li-summary" /><span class="checkmark"></span>About/Summary Section</label>
+              <label class="check-item"><input type="checkbox" id="li-experience" /><span class="checkmark"></span>Work Experience (2+)</label>
+              <label class="check-item"><input type="checkbox" id="li-education" /><span class="checkmark"></span>Education Details</label>
+              <label class="check-item"><input type="checkbox" id="li-skills" /><span class="checkmark"></span>Skills (10+)</label>
+              <label class="check-item"><input type="checkbox" id="li-projects" /><span class="checkmark"></span>Projects/Portfolio</label>
+              <label class="check-item"><input type="checkbox" id="li-certifications" /><span class="checkmark"></span>Certifications</label>
+              <label class="check-item"><input type="checkbox" id="li-recommendations" /><span class="checkmark"></span>Recommendations (2+)</label>
+              <label class="check-item"><input type="checkbox" id="li-featured" /><span class="checkmark"></span>Featured Section</label>
+              <label class="check-item"><input type="checkbox" id="li-activity" /><span class="checkmark"></span>Recent Activity/Posts</label>
+              <label class="check-item"><input type="checkbox" id="li-connections" /><span class="checkmark"></span>500+ Connections</label>
+            </div>
+          </div>
+
+          <div class="input-grid-2" style="margin-top:24px">
+            <div class="form-group">
+              <label for="li-followers">Followers / Connections</label>
+              <input type="number" id="li-followers" class="form-input" placeholder="e.g. 500" />
+            </div>
+            <div class="form-group">
+              <label for="li-headline-text">Your Current Headline</label>
+              <input type="text" id="li-headline-text" class="form-input" placeholder="e.g. CS Student | Java | React" />
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+            <button class="btn btn-primary btn-lg" onclick="analyzeLinkedIn()">Analyze LinkedIn →</button>
+          </div>
+
+          <div class="result-card" id="linkedin-result" style="display:none">
+            <div class="result-header">
+              <h3>LinkedIn Analysis Results</h3>
+              <div class="score-badge" id="linkedin-score-badge">0</div>
+            </div>
+            <div class="score-breakdown" id="linkedin-breakdown"></div>
+            <div class="improvements-list" id="linkedin-improvements"></div>
+            <div class="step-actions" style="margin-top:24px">
+              <button class="btn btn-primary btn-lg" onclick="goToStep(3)">Continue to Coding Profiles →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== STEP 3: CODING PROFILES ===== -->
+        <div class="wizard-step" id="step-3" style="display:none">
+          <div class="step-header">
+            <div class="step-icon">💻</div>
+            <div>
+              <h2>Coding Profile Analysis</h2>
+              <p>Enter your usernames. We'll fetch your stats from LeetCode and analyze your overall coding strength.</p>
+            </div>
+          </div>
+
+          <div class="platform-cards">
+            <div class="platform-card" id="lc-card">
+              <div class="platform-logo lc-logo">LC</div>
+              <div class="platform-info">
+                <h4>LeetCode</h4>
+                <p>Problems solved, contest rating, streak</p>
+              </div>
+              <input type="text" id="lc-username" class="form-input platform-input" placeholder="your-username" />
+            </div>
+            <div class="platform-card" id="gfg-card">
+              <div class="platform-logo gfg-logo">GFG</div>
+              <div class="platform-info">
+                <h4>GeeksforGeeks</h4>
+                <p>Score, streak, problems solved</p>
+              </div>
+              <input type="text" id="gfg-username" class="form-input platform-input" placeholder="your-username" />
+            </div>
+            <div class="platform-card" id="cf-card">
+              <div class="platform-logo cf-logo">CF</div>
+              <div class="platform-info">
+                <h4>Codeforces</h4>
+                <p>Rating, rank, problems solved</p>
+              </div>
+              <input type="text" id="cf-username" class="form-input platform-input" placeholder="your-username" />
+            </div>
+            <div class="platform-card" id="gh-card">
+              <div class="platform-logo gh-logo">GH</div>
+              <div class="platform-info">
+                <h4>GitHub</h4>
+                <p>Repos, contributions, stars</p>
+              </div>
+              <input type="text" id="gh-username" class="form-input platform-input" placeholder="your-username" />
+            </div>
+          </div>
+
+          <!-- Manual stats fallback -->
+          <div class="manual-stats-section">
+            <h4 style="margin-bottom:16px; color:var(--text-muted);">Or enter your stats manually:</h4>
+            <div class="input-grid-3">
+              <div class="form-group">
+                <label for="lc-easy">LeetCode Easy Solved</label>
+                <input type="number" id="lc-easy" class="form-input" placeholder="e.g. 50" />
+              </div>
+              <div class="form-group">
+                <label for="lc-medium">LeetCode Medium Solved</label>
+                <input type="number" id="lc-medium" class="form-input" placeholder="e.g. 30" />
+              </div>
+              <div class="form-group">
+                <label for="lc-hard">LeetCode Hard Solved</label>
+                <input type="number" id="lc-hard" class="form-input" placeholder="e.g. 10" />
+              </div>
+              <div class="form-group">
+                <label for="lc-rating">LeetCode Contest Rating</label>
+                <input type="number" id="lc-rating" class="form-input" placeholder="e.g. 1600" />
+              </div>
+              <div class="form-group">
+                <label for="gh-repos">GitHub Public Repos</label>
+                <input type="number" id="gh-repos" class="form-input" placeholder="e.g. 20" />
+              </div>
+              <div class="form-group">
+                <label for="gh-stars">GitHub Total Stars</label>
+                <input type="number" id="gh-stars" class="form-input" placeholder="e.g. 50" />
+              </div>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+            <button class="btn btn-primary btn-lg" id="analyze-coding-btn" onclick="analyzeCoding()">
+              <span id="coding-loader" style="display:none">⏳ Fetching... </span>
+              <span id="coding-btn-text">Analyze Coding Profiles →</span>
+            </button>
+          </div>
+
+          <div class="result-card" id="coding-result" style="display:none">
+            <div class="result-header">
+              <h3>Coding Profile Results</h3>
+              <div class="score-badge" id="coding-score-badge">0</div>
+            </div>
+            <div class="score-breakdown" id="coding-breakdown"></div>
+            <div class="improvements-list" id="coding-improvements"></div>
+            <div class="step-actions" style="margin-top:24px">
+              <button class="btn btn-primary btn-lg" onclick="generateFinalScore()">Generate My Job Ready Score 🎯</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== STEP 4: FINAL SCORE ===== -->
+        <div class="wizard-step" id="step-4" style="display:none">
+          <div class="final-score-wrapper" id="final-score-wrapper">
+
+            <!-- Score Dial -->
+            <div class="score-dial-section">
+              <div class="score-dial-container">
+                <svg class="score-dial-svg" viewBox="0 0 200 200" id="score-dial-svg">
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="var(--border)" stroke-width="12"/>
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="url(#scoreGrad)" stroke-width="12"
+                    stroke-linecap="round" stroke-dasharray="502" stroke-dashoffset="502"
+                    transform="rotate(-90 100 100)" id="score-circle" style="transition: stroke-dashoffset 2s ease"/>
+                  <defs>
+                    <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" style="stop-color:#8b5cf6"/>
+                      <stop offset="100%" style="stop-color:#06b6d4"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="score-dial-inner">
+                  <div class="final-score-number" id="final-score-number">0</div>
+                  <div class="final-score-label">Job Ready Score</div>
+                  <div class="final-score-grade" id="final-score-grade">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Breakdown Cards -->
+            <div class="final-breakdown-grid">
+              <div class="final-breakdown-card" id="fb-resume">
+                <div class="fb-icon">📄</div>
+                <div class="fb-label">Resume Score</div>
+                <div class="fb-score" id="fb-resume-score">—</div>
+                <div class="fb-bar"><div class="fb-bar-fill" id="fb-resume-bar" style="width:0%"></div></div>
+              </div>
+              <div class="final-breakdown-card" id="fb-linkedin">
+                <div class="fb-icon">💼</div>
+                <div class="fb-label">LinkedIn Score</div>
+                <div class="fb-score" id="fb-linkedin-score">—</div>
+                <div class="fb-bar"><div class="fb-bar-fill" id="fb-linkedin-bar" style="width:0%"></div></div>
+              </div>
+              <div class="final-breakdown-card" id="fb-coding">
+                <div class="fb-icon">💻</div>
+                <div class="fb-label">Coding Score</div>
+                <div class="fb-score" id="fb-coding-score">—</div>
+                <div class="fb-bar"><div class="fb-bar-fill" id="fb-coding-bar" style="width:0%"></div></div>
+              </div>
+            </div>
+
+            <!-- 90-Day Action Plan -->
+            <div class="action-plan-section" id="action-plan-section">
+              <h2 class="plan-title">🗺️ Your Personalized <span class="gradient-text">90-Day Action Plan</span></h2>
+              <div class="action-plan-grid" id="action-plan-grid"></div>
+            </div>
+
+            <!-- Top Improvements -->
+            <div class="top-improvements-section">
+              <h2 class="plan-title">⚡ Priority Improvements</h2>
+              <div class="top-improvements-list" id="top-improvements-list"></div>
+            </div>
+
+            <!-- Share + Restart -->
+            <div class="final-actions">
+              <button class="btn btn-primary btn-lg" onclick="window.print()">📥 Download Report</button>
+              <button class="btn btn-ghost btn-lg" onclick="restartAnalysis()">🔄 Start Over</button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="job-ready-score.js"></script>
+</body>
+</html>
