@@ -9,6 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="job-ready-score.css" />
+  <!-- PDF.js for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Mammoth.js for DOCX parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -79,7 +83,7 @@
             <div class="step-icon">📄</div>
             <div>
               <h2>Resume Analysis</h2>
-              <p>Paste your resume text below. We'll analyze structure, keywords, ATS compatibility, and content quality.</p>
+              <p>Upload your resume (PDF, DOC, DOCX) or paste the text below. We'll analyze structure, keywords, ATS compatibility, and content quality.</p>
             </div>
           </div>
 
@@ -94,15 +98,46 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="resume-text">Paste Resume Content *</label>
-            <textarea id="resume-text" class="form-input form-textarea" rows="14" placeholder="Paste your entire resume text here — include your skills, experience, education, projects, and any other sections..."></textarea>
-            <div class="input-hint">Tip: Copy everything from your resume doc and paste it here. The more content, the better the analysis.</div>
+          <!-- UPLOAD ZONE -->
+          <div class="upload-zone" id="upload-zone">
+            <input type="file" id="resume-file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" />
+            <div class="upload-idle" id="upload-idle">
+              <div class="upload-icon">📁</div>
+              <div class="upload-title">Drop your resume here</div>
+              <div class="upload-sub">PDF, DOC, or DOCX · Max 5 MB</div>
+              <button type="button" class="btn btn-upload" id="upload-btn">Browse File</button>
+            </div>
+            <div class="upload-loading" id="upload-loading" style="display:none">
+              <div class="upload-spinner"></div>
+              <div class="upload-loading-text" id="upload-loading-text">Reading file…</div>
+            </div>
+            <div class="upload-success" id="upload-success" style="display:none">
+              <div class="upload-file-info">
+                <span class="upload-file-icon">✅</span>
+                <div>
+                  <div class="upload-filename" id="upload-filename"></div>
+                  <div class="upload-filesize" id="upload-filesize"></div>
+                </div>
+                <button type="button" class="upload-remove" id="upload-remove" title="Remove file">✕</button>
+              </div>
+              <div class="upload-preview-toggle">
+                <button type="button" class="btn-text-link" id="toggle-preview">Show extracted text ↓</button>
+              </div>
+              <textarea id="resume-text" class="form-input form-textarea upload-preview-text" rows="8" style="display:none" placeholder="Extracted text will appear here…"></textarea>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="resume-jd">Target Job Description (Optional)</label>
-            <textarea id="resume-jd" class="form-input form-textarea" rows="5" placeholder="Paste the job description you're targeting — we'll check your resume's match percentage..."></textarea>
+          <!-- Fallback paste (shown if no file uploaded) -->
+          <div id="paste-fallback">
+            <div class="fallback-divider"><span>or paste resume text manually</span></div>
+            <div class="form-group">
+              <textarea id="resume-text-paste" class="form-input form-textarea" rows="6" placeholder="Paste your entire resume text here as a fallback…"></textarea>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:8px">
+            <label for="resume-jd">Target Job Description <span style="color:var(--text-dim);font-weight:400">(Optional — boosts JD match score)</span></label>
+            <textarea id="resume-jd" class="form-input form-textarea" rows="4" placeholder="Paste the job description you're targeting — we'll check your resume's match percentage..."></textarea>
           </div>
 
           <div class="step-actions">

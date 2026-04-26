@@ -1,7 +1,105 @@
 import './job-ready-score.css';
 
 // ===== STATE =====
-const state = { resumeScore: 0, linkedinScore: 0, codingScore: 0, improvements: [] };
+const state = { resumeScore: 0, linkedinScore: 0, codingScore: 0, improvements: [], extractedText: '' };
+
+// ===== PDF.js worker =====
+if (window.pdfjsLib) {
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// ===== FILE UPLOAD LOGIC =====
+document.addEventListener('DOMContentLoaded', () => {
+  const zone       = document.getElementById('upload-zone');
+  const fileInput  = document.getElementById('resume-file');
+  const uploadBtn  = document.getElementById('upload-btn');
+  const uploadIdle = document.getElementById('upload-idle');
+  const uploadLoad = document.getElementById('upload-loading');
+  const uploadSucc = document.getElementById('upload-success');
+  const loadText   = document.getElementById('upload-loading-text');
+  const filenameEl = document.getElementById('upload-filename');
+  const filesizeEl = document.getElementById('upload-filesize');
+  const removeBtn  = document.getElementById('upload-remove');
+  const toggleBtn  = document.getElementById('toggle-preview');
+  const previewTA  = document.getElementById('resume-text');
+  const pasteFall  = document.getElementById('paste-fallback');
+
+  uploadBtn?.addEventListener('click', () => fileInput.click());
+  fileInput?.addEventListener('change', () => { if (fileInput.files[0]) processFile(fileInput.files[0]); });
+
+  zone?.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone?.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone?.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+  });
+
+  removeBtn?.addEventListener('click', () => {
+    state.extractedText = ''; fileInput.value = '';
+    uploadIdle.style.display = 'flex';
+    uploadSucc.style.display = 'none';
+    uploadLoad.style.display = 'none';
+    if (previewTA) { previewTA.value = ''; previewTA.style.display = 'none'; }
+    if (pasteFall) pasteFall.style.display = 'block';
+  });
+
+  let previewVisible = false;
+  toggleBtn?.addEventListener('click', () => {
+    previewVisible = !previewVisible;
+    if (previewTA) previewTA.style.display = previewVisible ? 'block' : 'none';
+    if (toggleBtn) toggleBtn.textContent = previewVisible ? 'Hide extracted text ↑' : 'Show extracted text ↓';
+  });
+
+  async function processFile(file) {
+    if (file.size > 5 * 1024 * 1024) { alert('File too large. Max 5 MB.'); return; }
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['pdf','doc','docx'].includes(ext)) { alert('Please upload a PDF, DOC, or DOCX file.'); return; }
+
+    uploadIdle.style.display = 'none'; uploadSucc.style.display = 'none';
+    uploadLoad.style.display = 'flex';
+    loadText.textContent = ext === 'pdf' ? 'Extracting text from PDF…' : 'Extracting text from Word document…';
+
+    try {
+      const text = ext === 'pdf' ? await extractPDF(file) : await extractDOCX(file);
+      state.extractedText = text;
+      if (previewTA) previewTA.value = text;
+      uploadLoad.style.display = 'none'; uploadSucc.style.display = 'block';
+      filenameEl.textContent = file.name;
+      filesizeEl.textContent = formatBytes(file.size) + ' · ' + text.split(/\s+/).length + ' words extracted';
+      if (pasteFall) pasteFall.style.display = 'none';
+    } catch (err) {
+      uploadLoad.style.display = 'none'; uploadIdle.style.display = 'flex';
+      alert('Could not read file: ' + err.message + '\n\nPlease paste your resume text manually below.');
+    }
+  }
+
+  async function extractPDF(file) {
+    const ab = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: ab }).promise;
+    let txt = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      txt += content.items.map(x => x.str).join(' ') + '\n';
+    }
+    if (!txt.trim()) throw new Error('No text found — PDF may be image-based.');
+    return txt;
+  }
+
+  async function extractDOCX(file) {
+    const ab = await file.arrayBuffer();
+    const result = await window.mammoth.extractRawText({ arrayBuffer: ab });
+    if (!result.value.trim()) throw new Error('No text could be extracted.');
+    return result.value;
+  }
+
+  function formatBytes(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+    return (b/(1024*1024)).toFixed(1) + ' MB';
+  }
+});
 
 // ===== THEME =====
 const saved = localStorage.getItem('theme');
@@ -32,13 +130,15 @@ window.goToStep = function(n) {
 
 // ===== RESUME ANALYSIS =====
 window.analyzeResume = function() {
-  const name  = document.getElementById('resume-name').value.trim();
-  const role  = document.getElementById('resume-role').value.trim();
-  const text  = document.getElementById('resume-text').value.trim();
-  const jd    = document.getElementById('resume-jd').value.trim();
+  const role = document.getElementById('resume-role').value.trim();
+  const jd   = document.getElementById('resume-jd').value.trim();
+  // Priority: uploaded file text → paste fallback textarea
+  const text = (state.extractedText || '').trim() ||
+               (document.getElementById('resume-text-paste')?.value || '').trim() ||
+               (document.getElementById('resume-text')?.value || '').trim();
 
-  if (!text || text.length < 100) {
-    alert('Please paste your resume content (at least a few sentences).'); return;
+  if (!text || text.length < 80) {
+    alert('Please upload your resume or paste its content below.'); return;
   }
 
   const loader = document.getElementById('resume-loader');
@@ -446,10 +546,20 @@ function buildActionPlan(score) {
 
 // ===== RESTART =====
 window.restartAnalysis = function() {
-  state.resumeScore = 0; state.linkedinScore = 0; state.codingScore = 0; state.improvements = [];
+  state.resumeScore = 0; state.linkedinScore = 0; state.codingScore = 0;
+  state.improvements = []; state.extractedText = '';
   document.getElementById('resume-result').style.display = 'none';
   document.getElementById('linkedin-result').style.display = 'none';
   document.getElementById('coding-result').style.display = 'none';
+  // Reset upload zone
+  const idle = document.getElementById('upload-idle');
+  const succ = document.getElementById('upload-success');
+  const fi   = document.getElementById('resume-file');
+  const pf   = document.getElementById('paste-fallback');
+  if (idle) idle.style.display = 'flex';
+  if (succ) succ.style.display = 'none';
+  if (fi)   fi.value = '';
+  if (pf)   pf.style.display = 'block';
   goToStep(1);
 };
 
