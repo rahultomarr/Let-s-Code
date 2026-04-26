@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resume Studio — Let's Code</title>
+  <meta name="description" content="Score your resume against ATS, edit inline, get AI improvements, and download as PDF — completely free." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">{"</span>
+        <span class="logo-text">Let's Code</span>
+        <span class="logo-icon">}</span>
+      </a>
+      <div class="nav-center-badge">
+        <span class="tool-badge-pill">📄 AI Resume Studio</span>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
+        <a href="index.html" class="btn btn-ghost">← Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="studio-main">
+
+    <!-- ===== HERO ===== -->
+    <section class="studio-hero">
+      <div class="hero-bg-grid"></div>
+      <div class="hero-orb orb-1"></div>
+      <div class="hero-orb orb-2"></div>
+      <div class="container">
+        <div class="hero-tag"><span class="tag-dot"></span>Free · No signup needed · Instant results</div>
+        <h1 class="hero-title">AI <span class="gradient-text">Resume Studio</span></h1>
+        <p class="hero-sub">ATS Score · Inline Editing · AI Improvements · PDF Download<br>One flow — no tools to switch between.</p>
+        <div class="hero-stats-row">
+          <div class="hs-item"><span class="hs-num">7</span><span class="hs-label">ATS Categories</span></div>
+          <div class="hs-div"></div>
+          <div class="hs-item"><span class="hs-num">100%</span><span class="hs-label">Free</span></div>
+          <div class="hs-div"></div>
+          <div class="hs-item"><span class="hs-num">AI</span><span class="hs-label">Powered</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MAIN STUDIO LAYOUT ===== -->
+    <section class="studio-layout" id="studio-layout">
+      <div class="studio-container">
+
+        <!-- ====== PANEL A: UPLOAD + SCORE ====== -->
+        <div class="panel-upload" id="panel-upload">
+
+          <!-- Upload Card -->
+          <div class="upload-card" id="upload-card">
+            <div class="uc-header">
+              <h2>Upload Your Resume</h2>
+              <p>PDF, DOC, or DOCX · Max 5 MB</p>
+            </div>
+            <div class="drop-zone" id="drop-zone">
+              <input type="file" id="resume-file" accept=".pdf,.doc,.docx" style="display:none" />
+              <div class="dz-idle" id="dz-idle">
+                <div class="dz-icon">📂</div>
+                <div class="dz-title">Drag & drop your resume</div>
+                <div class="dz-sub">or</div>
+                <button class="btn btn-upload" id="browse-btn">Browse File</button>
+              </div>
+              <div class="dz-loading" id="dz-loading" style="display:none">
+                <div class="dz-spinner"></div>
+                <div id="dz-load-text">Extracting text…</div>
+              </div>
+              <div class="dz-done" id="dz-done" style="display:none">
+                <div class="dz-done-info">
+                  <span class="dz-check">✅</span>
+                  <div>
+                    <div class="dz-fname" id="dz-fname"></div>
+                    <div class="dz-fsize" id="dz-fsize"></div>
+                  </div>
+                  <button class="dz-remove" id="dz-remove">✕</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Optional JD -->
+            <div class="jd-section" id="jd-section" style="display:none">
+              <label class="jd-label">
+                <span>🎯 Job Description</span>
+                <span class="jd-optional">Optional — improves keyword match score</span>
+              </label>
+              <textarea id="jd-input" class="jd-textarea" rows="4" placeholder="Paste the job description here for a tailored keyword match score…"></textarea>
+            </div>
+
+            <button class="btn btn-analyze" id="analyze-btn" style="display:none" onclick="runAnalysis()">
+              <span id="analyze-spinner" style="display:none" class="btn-spin">⟳</span>
+              Analyse Resume →
+            </button>
+          </div>
+
+          <!-- ATS Score Panel (shown after analysis) -->
+          <div class="ats-panel" id="ats-panel" style="display:none">
+            <div class="ats-header">
+              <div class="ats-dial-wrap">
+                <svg class="ats-dial" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" stroke-width="8"/>
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="url(#atsGrad)" stroke-width="8"
+                    stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
+                    transform="rotate(-90 60 60)" id="ats-circle" style="transition:stroke-dashoffset 1.5s ease"/>
+                  <defs>
+                    <linearGradient id="atsGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" style="stop-color:#8b5cf6"/>
+                      <stop offset="100%" style="stop-color:#06b6d4"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="ats-dial-inner">
+                  <div class="ats-score-num" id="ats-score-num">0</div>
+                  <div class="ats-score-lbl">ATS Score</div>
+                </div>
+              </div>
+              <div class="ats-grade-block">
+                <div class="ats-grade" id="ats-grade">—</div>
+                <div class="ats-grade-desc" id="ats-grade-desc">Analyzing…</div>
+                <button class="btn btn-sm btn-outline" onclick="resetStudio()">Upload New →</button>
+              </div>
+            </div>
+
+            <!-- 7 category bars -->
+            <div class="ats-categories" id="ats-categories"></div>
+
+            <!-- Quick fixes -->
+            <div class="quick-fixes" id="quick-fixes"></div>
+          </div>
+        </div>
+
+        <!-- ====== PANEL B: EDITOR ====== -->
+        <div class="panel-editor" id="panel-editor" style="display:none">
+
+          <!-- Toolbar -->
+          <div class="editor-toolbar">
+            <div class="toolbar-left">
+              <span class="editor-label">✏️ Resume Editor</span>
+              <span class="editor-hint" id="edit-hint">AI-improved content will appear here</span>
+            </div>
+            <div class="toolbar-right">
+              <button class="tbtn" id="btn-improve-all" onclick="improveAll()" title="AI improve full resume">✨ AI Improve All</button>
+              <button class="tbtn tbtn-dl" onclick="downloadPDF()" title="Download as PDF">📥 PDF</button>
+              <button class="tbtn tbtn-dl" onclick="downloadDOC()" title="Download as DOC">📄 DOC</button>
+            </div>
+          </div>
+
+          <!-- Editor panes: original | improved -->
+          <div class="editor-panes">
+            <div class="editor-pane" id="pane-original">
+              <div class="pane-header">
+                <span class="pane-tag">Original</span>
+              </div>
+              <div class="pane-sections" id="sections-original"></div>
+            </div>
+            <div class="pane-divider"></div>
+            <div class="editor-pane" id="pane-improved">
+              <div class="pane-header">
+                <span class="pane-tag pane-tag-ai">✨ AI Improved</span>
+                <span class="pane-hint">Click any section to accept</span>
+              </div>
+              <div class="pane-sections" id="sections-improved"></div>
+            </div>
+          </div>
+
+          <!-- Final editable resume -->
+          <div class="final-editor-wrap" id="final-editor-wrap" style="display:none">
+            <div class="fe-header">
+              <span>📋 Final Resume — Click to Edit</span>
+              <div class="fe-actions">
+                <button class="tbtn tbtn-dl" onclick="downloadPDF()">📥 Download PDF</button>
+                <button class="tbtn tbtn-dl" onclick="downloadDOC()">📄 Download DOC</button>
+              </div>
+            </div>
+            <div id="final-resume" class="final-resume" contenteditable="true"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== FEATURES STRIP ===== -->
+    <section class="features-strip" id="features-strip">
+      <div class="container">
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="fc-icon">🎯</div>
+            <h3>Instant ATS Score</h3>
+            <p>See your score across 7 categories — keywords, format, experience, skills, education, impact & readability.</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-icon">✨</div>
+            <h3>AI Section Rewriter</h3>
+            <p>Let AI rewrite weak sections with stronger action verbs, quantifiable metrics, and JD-aligned keywords.</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-icon">📥</div>
+            <h3>Download PDF or DOC</h3>
+            <p>Export your improved resume as a clean PDF or Word document, ready to send to recruiters in one click.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- IMPROVE MODAL -->
+  <div class="modal-overlay" id="improve-modal">
+    <div class="improve-modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="im-loading" id="im-loading">
+        <div class="im-spinner"></div>
+        <div class="im-load-text">AI is rewriting this section…</div>
+      </div>
+      <div class="im-result" id="im-result" style="display:none">
+        <div class="im-section-name" id="im-section-name"></div>
+        <div class="im-diff" id="im-diff"></div>
+        <div class="im-actions">
+          <button class="btn btn-primary" onclick="acceptImprovement()">✅ Accept</button>
+          <button class="btn btn-ghost" onclick="closeModal()">Discard</button>
+          <button class="btn btn-ghost" onclick="regenerate()">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="ai-resume-studio.js"></script>
+</body>
+</html>
