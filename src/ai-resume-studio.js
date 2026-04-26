@@ -400,6 +400,7 @@ function renderATSPanel(result) {
         </div>`;
     }
   }
+}
 
 // ===== RENDER EDITOR =====
 function renderEditor() {
