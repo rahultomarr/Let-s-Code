@@ -12,9 +12,12 @@ const state = {
   sections: {},
   improvedSections: {},
   atsScore: 0,
+  initialScore: 0,
   currentSection: null,
   currentImproved: '',
-  acceptedSections: new Set()
+  acceptedSections: new Set(),
+  missingKeywords: [],
+  jd: ''
 };
 
 // ===== THEME =====
@@ -226,7 +229,8 @@ function scoreATS(text, jd) {
   categories.push({ icon:'🎯', name:'JD Match', score: jdScore });
 
   const total = Math.round(categories.reduce((a,b) => a+b.score, 0) / categories.length);
-  return { total, categories, fixes: fixes.slice(0, 5) };
+  const missingKw = techKw.filter(k => !found.includes(k));
+  return { total, categories, fixes: fixes.slice(0, 5), foundKw: found, missingKw };
 }
 
 // ===== AI IMPROVEMENT (rule-based) =====
@@ -312,9 +316,12 @@ window.runAnalysis = function() {
 
   setTimeout(() => {
     const jd = jdInput?.value.trim() || '';
+    state.jd = jd;
     const atsResult = scoreATS(state.rawText, jd);
-    state.atsScore  = atsResult.total;
-    state.sections  = parseResumeSections(state.rawText);
+    state.atsScore   = atsResult.total;
+    state.initialScore = atsResult.total;
+    state.missingKeywords = atsResult.missingKw || [];
+    state.sections   = parseResumeSections(state.rawText);
 
     // Show ATS panel
     document.getElementById('upload-card').style.display = 'none';
@@ -379,7 +386,20 @@ function renderATSPanel(result) {
       </div>`
     ).join('');
   }
-}
+
+  // Missing keywords panel
+  if (result.missingKw && result.missingKw.length) {
+    const kwPanel = document.getElementById('missing-kw-panel');
+    if (kwPanel) {
+      kwPanel.style.display = 'block';
+      kwPanel.innerHTML = `
+        <h4>🔍 Missing Keywords</h4>
+        <p class="kw-hint">Add these to your skills/experience sections to boost ATS score:</p>
+        <div class="kw-chips">${result.missingKw.slice(0,12).map(k =>
+          `<span class="kw-chip" onclick="copyKw('${k}')">${k}</span>`).join('')}
+        </div>`;
+    }
+  }
 
 // ===== RENDER EDITOR =====
 function renderEditor() {
@@ -397,16 +417,22 @@ function renderEditor() {
   Object.entries(state.sections).forEach(([key, content]) => {
     if (!content.trim()) return;
     const label = sectionLabels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+    const wc = content.trim().split(/\s+/).filter(Boolean).length;
 
     // Original pane
     const origDiv = document.createElement('div');
     origDiv.className = 'resume-section';
+    origDiv.id = `orig-${key}`;
     origDiv.innerHTML = `
       <div class="rs-header">
         <span class="rs-title">${label}</span>
-        <button class="rs-improve-btn" onclick="improveSection('${key}')">✨ AI Improve</button>
+        <div class="rs-actions">
+          <span class="rs-wc">${wc}w</span>
+          <button class="rs-copy-btn" onclick="copySection('${key}')" title="Copy to clipboard">📋</button>
+          <button class="rs-improve-btn" onclick="improveSection('${key}')">✨ AI Improve</button>
+        </div>
       </div>
-      <div class="rs-content">${escHtml(content)}</div>`;
+      <div class="rs-content" id="orig-content-${key}">${escHtml(content)}</div>`;
     origEl.appendChild(origDiv);
 
     // Improved pane — loading state initially
@@ -449,19 +475,26 @@ window.acceptSection = function(key) {
   state.sections[key] = state.improvedSections[key] || state.sections[key];
   state.acceptedSections.add(key);
 
-  // Update original pane to show accepted content
-  const origEl = document.getElementById('sections-original');
-  const cards  = origEl.querySelectorAll('.resume-section');
-  const keys   = Object.keys(state.sections);
-  const idx    = keys.indexOf(key);
-  if (cards[idx]) {
-    cards[idx].querySelector('.rs-content').textContent = state.sections[key];
-    cards[idx].style.borderColor = 'var(--green)';
-  }
+  // Update original pane
+  const origContent = document.getElementById(`orig-content-${key}`);
+  const origCard    = document.getElementById(`orig-${key}`);
+  if (origContent) origContent.textContent = state.sections[key];
+  if (origCard)    origCard.style.borderColor = 'var(--green)';
 
-  // Mark improved pane as accepted
+  // Mark improved pane
   const impDiv = document.getElementById(`imp-${key}`);
   if (impDiv) impDiv.style.borderColor = 'var(--green)';
+
+  // Re-analyse score after accepting improvements
+  const newResult = scoreATS(Object.values(state.sections).join(' '), state.jd);
+  const improvement = newResult.total - state.initialScore;
+  const scoreEl = document.getElementById('ats-score-num');
+  if (scoreEl) scoreEl.textContent = newResult.total;
+  const impBadge = document.getElementById('score-improvement');
+  if (impBadge && improvement > 0) {
+    impBadge.textContent = `+${improvement} pts`;
+    impBadge.style.display = 'inline-block';
+  }
 
   // Rebuild final resume
   updateFinalResume();
@@ -508,18 +541,43 @@ window.improveAll = function() {
   next();
 };
 
-// ===== DOWNLOAD PDF =====
-window.downloadPDF = function() {
+// ===== DOWNLOAD PDF (with template) =====
+const TEMPLATES = {
+  modern: (content) => `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resume</title>
+    <style>
+      body{font-family:'Segoe UI',system-ui,sans-serif;max-width:780px;margin:0 auto;padding:48px 40px;color:#111;font-size:13px;line-height:1.7}
+      h1{font-size:24px;font-weight:800;color:#8b5cf6;margin-bottom:2px}
+      .section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#8b5cf6;border-bottom:2px solid #8b5cf6;padding-bottom:4px;margin:20px 0 8px}
+      pre{white-space:pre-wrap;font-family:inherit;margin:0}
+      .header{border-bottom:3px solid #8b5cf6;margin-bottom:20px;padding-bottom:12px}
+    </style></head><body>
+    <div class="header"><h1>Resume</h1></div>
+    <pre>${content}</pre></body></html>`,
+
+  classic: (content) => `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resume</title>
+    <style>
+      body{font-family:Georgia,serif;max-width:780px;margin:0 auto;padding:48px 40px;color:#1a1a1a;font-size:13px;line-height:1.8}
+      .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#333;border-bottom:1px solid #999;padding-bottom:3px;margin:18px 0 8px}
+      pre{white-space:pre-wrap;font-family:inherit;margin:0}
+    </style></head><body>
+    <pre>${content}</pre></body></html>`,
+
+  minimal: (content) => `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resume</title>
+    <style>
+      body{font-family:'Inter',system-ui,sans-serif;max-width:700px;margin:0 auto;padding:60px 48px;color:#222;font-size:12.5px;line-height:1.75}
+      pre{white-space:pre-wrap;font-family:inherit;margin:0}
+    </style></head><body>
+    <pre>${content}</pre></body></html>`
+};
+
+window.downloadPDF = function(template = 'modern') {
   const content = document.getElementById('final-resume')?.innerText || buildFullText();
   if (!content.trim()) { alert('Please analyse a resume first.'); return; }
+  const html = TEMPLATES[template] ? TEMPLATES[template](escHtml(content)) : TEMPLATES.modern(escHtml(content));
   const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <title>Resume</title>
-    <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:0 40px;font-size:13px;line-height:1.8;color:#111}
-    pre{white-space:pre-wrap;font-family:inherit;font-size:13px}</style>
-    </head><body><pre>${escHtml(content)}</pre></body></html>`);
+  win.document.write(html);
   win.document.close();
-  setTimeout(() => { win.print(); }, 500);
+  setTimeout(() => win.print(), 500);
 };
 
 // ===== DOWNLOAD DOC =====
@@ -540,10 +598,28 @@ function buildFullText() {
   return Object.entries(state.sections).map(([k,v]) => `${k.toUpperCase()}\n${v}`).join('\n\n');
 }
 
+// ===== COPY SECTION =====
+window.copySection = function(key) {
+  const text = state.sections[key] || '';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector(`#orig-${key} .rs-copy-btn`);
+    if (btn) { btn.textContent = '✅'; setTimeout(() => { btn.textContent = '📋'; }, 1500); }
+  });
+};
+
+// ===== COPY KEYWORD =====
+window.copyKw = function(kw) {
+  navigator.clipboard.writeText(kw);
+  // Brief visual feedback
+  event.target.style.background = 'rgba(34,197,94,.3)';
+  setTimeout(() => { event.target.style.background = ''; }, 1000);
+};
+
 // ===== RESET =====
 window.resetStudio = function() {
   state.rawText = ''; state.sections = {}; state.improvedSections = {};
-  state.atsScore = 0; state.acceptedSections = new Set();
+  state.atsScore = 0; state.initialScore = 0; state.acceptedSections = new Set();
+  state.missingKeywords = []; state.jd = '';
   document.getElementById('upload-card').style.display = 'block';
   document.getElementById('ats-panel').style.display   = 'none';
   document.getElementById('panel-editor').style.display = 'none';
@@ -552,14 +628,16 @@ window.resetStudio = function() {
   document.getElementById('jd-section').style.display  = 'none';
   document.getElementById('analyze-btn').style.display = 'none';
   document.getElementById('final-editor-wrap').style.display = 'none';
+  const kp = document.getElementById('missing-kw-panel');
+  if (kp) kp.style.display = 'none';
 };
 
-// ===== MODAL (unused in this version but wired for future) =====
+// ===== MODAL =====
 window.closeModal = function() {
   document.getElementById('improve-modal').classList.remove('open');
 };
 
 // ===== UTILS =====
 function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }

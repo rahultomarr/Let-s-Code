@@ -131,6 +131,7 @@
               <div class="ats-grade-block">
                 <div class="ats-grade" id="ats-grade">—</div>
                 <div class="ats-grade-desc" id="ats-grade-desc">Analyzing…</div>
+                <span class="score-improvement-badge" id="score-improvement" style="display:none"></span>
                 <button class="btn btn-sm btn-outline" onclick="resetStudio()">Upload New →</button>
               </div>
             </div>
@@ -140,6 +141,9 @@
 
             <!-- Quick fixes -->
             <div class="quick-fixes" id="quick-fixes"></div>
+
+            <!-- Missing keywords panel -->
+            <div class="missing-kw-panel" id="missing-kw-panel" style="display:none"></div>
           </div>
         </div>
 
@@ -154,7 +158,14 @@
             </div>
             <div class="toolbar-right">
               <button class="tbtn" id="btn-improve-all" onclick="improveAll()" title="AI improve full resume">✨ AI Improve All</button>
-              <button class="tbtn tbtn-dl" onclick="downloadPDF()" title="Download as PDF">📥 PDF</button>
+              <div class="template-picker">
+                <select class="template-select" id="template-select" onchange="" title="Choose PDF template">
+                  <option value="modern">📌 Modern</option>
+                  <option value="classic">📜 Classic</option>
+                  <option value="minimal">⬜ Minimal</option>
+                </select>
+              </div>
+              <button class="tbtn tbtn-dl" onclick="downloadPDF(document.getElementById('template-select').value)" title="Download as PDF">📥 PDF</button>
               <button class="tbtn tbtn-dl" onclick="downloadDOC()" title="Download as DOC">📄 DOC</button>
             </div>
           </div>
