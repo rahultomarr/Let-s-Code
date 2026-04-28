@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AI Mock Interview — Let's Code</title>
+  <meta name="description" content="Practice real interview questions with AI. Get instant feedback on your answers for DSA, System Design, and HR rounds."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="mock-interview.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">{"<span>Let's Code</span>"}</a>
+    <span class="nav-badge">🎤 AI Mock Interview</span>
+    <div class="nav-right">
+      <button class="theme-btn" id="theme-btn">🌙</button>
+      <a href="index.html" class="ghost-btn">← Home</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><span class="bdot"></span>AI-Powered · Real Questions · Instant Feedback</div>
+      <h1>AI <span class="gtext">Mock Interview</span></h1>
+      <p class="hero-sub">Practice DSA, System Design & HR rounds. Get scored answers with detailed feedback — like a real interview panel.</p>
+      <div class="hero-chips">
+        <span class="chip">💻 DSA</span><span class="chip">🏗 System Design</span><span class="chip">🤝 HR Round</span><span class="chip">🎯 Behavioural</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="setup-section" id="setup-section">
+    <div class="setup-card">
+      <h2 class="sc-title">Configure Your Interview</h2>
+      <div class="setup-grid">
+        <div class="sg-group">
+          <label class="sg-label">Interview Type</label>
+          <div class="type-pills" id="type-pills">
+            <button class="type-pill active" data-type="dsa">💻 DSA</button>
+            <button class="type-pill" data-type="system">🏗 System Design</button>
+            <button class="type-pill" data-type="hr">🤝 HR Round</button>
+            <button class="type-pill" data-type="behavioural">🎯 Behavioural</button>
+          </div>
+        </div>
+        <div class="sg-group">
+          <label class="sg-label">Difficulty</label>
+          <div class="diff-pills" id="diff-pills">
+            <button class="diff-pill active" data-diff="easy">🟢 Easy</button>
+            <button class="diff-pill" data-diff="medium">🟡 Medium</button>
+            <button class="diff-pill" data-diff="hard">🔴 Hard</button>
+          </div>
+        </div>
+        <div class="sg-group">
+          <label class="sg-label">Target Company <span class="opt-tag">Optional</span></label>
+          <div class="company-grid" id="company-grid">
+            <button class="company-btn active" data-co="">Any</button>
+            <button class="company-btn" data-co="Google">Google</button>
+            <button class="company-btn" data-co="Amazon">Amazon</button>
+            <button class="company-btn" data-co="Microsoft">Microsoft</button>
+            <button class="company-btn" data-co="Flipkart">Flipkart</button>
+            <button class="company-btn" data-co="Infosys">Infosys</button>
+            <button class="company-btn" data-co="TCS">TCS</button>
+            <button class="company-btn" data-co="Startup">Startup</button>
+          </div>
+        </div>
+        <div class="sg-group">
+          <label class="sg-label">Number of Questions</label>
+          <div class="qcount-row">
+            <input type="range" id="q-count" min="3" max="15" value="5" class="q-slider"/>
+            <span class="q-count-val" id="q-count-val">5 Questions</span>
+          </div>
+        </div>
+      </div>
+      <button class="start-btn" id="start-btn" onclick="startInterview()">🎤 Start Interview →</button>
+    </div>
+  </section>
+
+  <!-- INTERVIEW SESSION -->
+  <section class="session-section" id="session-section" style="display:none">
+    <div class="session-wrap">
+
+      <!-- Left: Question panel -->
+      <div class="question-panel">
+        <div class="qp-header">
+          <div class="qp-progress">
+            <span id="q-current">Q1</span> of <span id="q-total">5</span>
+          </div>
+          <div class="qp-meta">
+            <span class="qp-type-badge" id="qp-type-badge">DSA</span>
+            <span class="qp-diff-badge" id="qp-diff-badge">Medium</span>
+          </div>
+          <div class="qp-timer" id="qp-timer">⏱ 00:00</div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+        </div>
+        <div class="question-content" id="question-content">
+          <div class="q-loading"><div class="q-spin"></div>Generating question…</div>
+        </div>
+        <div class="q-hints" id="q-hints" style="display:none">
+          <div class="hint-header" onclick="toggleHints()">💡 Hints <span id="hint-toggle-icon">▼</span></div>
+          <div class="hint-body" id="hint-body" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- Right: Answer panel -->
+      <div class="answer-panel">
+        <div class="ap-header">
+          <span class="ap-label">Your Answer</span>
+          <div class="ap-tools">
+            <button class="ap-tool-btn" onclick="clearAnswer()">🗑 Clear</button>
+            <button class="ap-tool-btn" onclick="useSpeech()" id="speech-btn">🎙 Voice</button>
+          </div>
+        </div>
+        <textarea id="answer-input" class="answer-textarea" placeholder="Type your answer here… Be detailed — use examples, explain trade-offs, mention time/space complexity for DSA."></textarea>
+        <div class="ap-footer">
+          <span class="ap-char-count" id="ap-char-count">0 / 2000 chars</span>
+          <button class="skip-btn" onclick="skipQuestion()">Skip →</button>
+          <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Submit Answer ✓</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEEDBACK -->
+  <section class="feedback-section" id="feedback-section" style="display:none">
+    <div class="feedback-card">
+      <div class="fb-loading" id="fb-loading">
+        <div class="fb-spinner"></div>
+        <div class="fb-load-text">AI is evaluating your answer…</div>
+      </div>
+      <div class="fb-content" id="fb-content" style="display:none">
+        <div class="fb-header">
+          <div class="fb-score-ring">
+            <svg viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="6"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="url(#fbGrad)" stroke-width="6"
+                stroke-linecap="round" stroke-dasharray="214" stroke-dashoffset="214"
+                transform="rotate(-90 40 40)" id="fb-circle" style="transition:stroke-dashoffset 1.2s ease"/>
+              <defs><linearGradient id="fbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#06b6d4"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="fb-ring-inner"><span id="fb-score">0</span><span class="fb-ring-lbl">/10</span></div>
+          </div>
+          <div class="fb-verdict">
+            <div class="fb-verdict-text" id="fb-verdict-text">—</div>
+            <div class="fb-q-recap" id="fb-q-recap"></div>
+          </div>
+        </div>
+        <div class="fb-sections">
+          <div class="fb-sec" id="fb-strengths"></div>
+          <div class="fb-sec" id="fb-improvements"></div>
+          <div class="fb-sec" id="fb-model-answer"></div>
+        </div>
+        <div class="fb-actions">
+          <button class="fb-btn fb-btn-primary" id="next-question-btn" onclick="nextQuestion()">Next Question →</button>
+          <button class="fb-btn fb-btn-outline" onclick="showHint()">💡 Show Hint</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="results-section" id="results-section" style="display:none">
+    <div class="results-card">
+      <div class="rc-header">
+        <div class="rc-icon">🏆</div>
+        <h2>Interview Complete!</h2>
+        <p class="rc-sub">Here's your full performance report</p>
+      </div>
+      <div class="rc-score-row">
+        <div class="rc-big-score" id="rc-big-score">—</div>
+        <div class="rc-score-label">Overall Score</div>
+        <div class="rc-grade" id="rc-grade">—</div>
+      </div>
+      <div class="rc-breakdown" id="rc-breakdown"></div>
+      <div class="rc-tips" id="rc-tips"></div>
+      <div class="rc-actions">
+        <button class="fb-btn fb-btn-primary" onclick="restartInterview()">🔄 Try Again</button>
+        <button class="fb-btn fb-btn-outline" onclick="window.location.href='job-ready-score.html'">📊 Job Ready Score</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script type="module" src="mock-interview.js"></script>
+</body>
+</html>

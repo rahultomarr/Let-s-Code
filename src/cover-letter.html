@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AI Cover Letter Generator — Let's Code</title>
+  <meta name="description" content="Generate ATS-optimized cover letters in seconds. Paste your resume and job description — get a tailored, professional letter instantly."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="cover-letter.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">{"<span>Let's Code</span>"}</a>
+    <span class="nav-badge">✉️ Cover Letter AI</span>
+    <div class="nav-right">
+      <button class="theme-btn" id="theme-btn">🌙</button>
+      <a href="index.html" class="ghost-btn">← Home</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><span class="bdot"></span>Instant · ATS-Optimised · Personalised</div>
+      <h1>AI <span class="gtext">Cover Letter</span> Generator</h1>
+      <p class="hero-sub">Paste your resume and the job description. Our AI writes a tailored, ATS-friendly cover letter in seconds — for free.</p>
+      <div class="hero-stats">
+        <div class="hs-item"><span class="hs-num">30s</span><span class="hs-lbl">Generation time</span></div>
+        <div class="hs-div"></div>
+        <div class="hs-item"><span class="hs-num">5</span><span class="hs-lbl">Tone options</span></div>
+        <div class="hs-div"></div>
+        <div class="hs-item"><span class="hs-num">100%</span><span class="hs-lbl">Free</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INPUT SECTION -->
+  <section class="input-section" id="input-section">
+    <div class="input-grid">
+
+      <!-- Left Column -->
+      <div class="input-col">
+        <div class="input-card">
+          <div class="ic-header">
+            <span class="ic-icon">📄</span>
+            <div>
+              <div class="ic-title">Your Resume</div>
+              <div class="ic-sub">Paste key highlights or your full resume</div>
+            </div>
+          </div>
+          <textarea id="resume-input" class="cl-textarea" rows="8" placeholder="e.g.&#10;Software Engineer at Amazon — built REST APIs serving 10K+ users&#10;Skills: React, Node.js, Python, AWS&#10;B.Tech CS from IIT Delhi&#10;Projects: real-time chat app, e-commerce platform…"></textarea>
+        </div>
+
+        <div class="input-card">
+          <div class="ic-header">
+            <span class="ic-icon">🎯</span>
+            <div>
+              <div class="ic-title">Job Description</div>
+              <div class="ic-sub">Paste the full JD for best keyword matching</div>
+            </div>
+          </div>
+          <textarea id="jd-input" class="cl-textarea" rows="8" placeholder="Paste the job description here…&#10;&#10;Role: Frontend Engineer at Google&#10;Requirements: 3+ years React, TypeScript, performance optimization…&#10;Nice to have: GraphQL, A/B testing experience…"></textarea>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="input-col">
+        <div class="input-card options-card">
+          <div class="ic-title" style="margin-bottom:18px">Customise Your Letter</div>
+
+          <div class="opt-group">
+            <label class="opt-label">Tone</label>
+            <div class="tone-pills" id="tone-pills">
+              <button class="tone-pill active" data-tone="professional">💼 Professional</button>
+              <button class="tone-pill" data-tone="enthusiastic">🔥 Enthusiastic</button>
+              <button class="tone-pill" data-tone="concise">⚡ Concise</button>
+              <button class="tone-pill" data-tone="creative">🎨 Creative</button>
+              <button class="tone-pill" data-tone="formal">📜 Formal</button>
+            </div>
+          </div>
+
+          <div class="opt-group">
+            <label class="opt-label">Length</label>
+            <div class="len-pills" id="len-pills">
+              <button class="len-pill" data-len="short">Short (150 words)</button>
+              <button class="len-pill active" data-len="medium">Medium (250 words)</button>
+              <button class="len-pill" data-len="long">Long (400 words)</button>
+            </div>
+          </div>
+
+          <div class="opt-group">
+            <label class="opt-label">Your Name <span class="opt-req">Required</span></label>
+            <input type="text" id="name-input" class="cl-input" placeholder="e.g. Rahul Tomar"/>
+          </div>
+
+          <div class="opt-group">
+            <label class="opt-label">Hiring Manager's Name <span class="opt-opt">Optional</span></label>
+            <input type="text" id="manager-input" class="cl-input" placeholder="e.g. Ms. Priya Sharma (leave blank for 'Hiring Manager')"/>
+          </div>
+
+          <div class="opt-group">
+            <label class="opt-label">Company Name</label>
+            <input type="text" id="company-input" class="cl-input" placeholder="e.g. Google"/>
+          </div>
+
+          <div class="opt-group">
+            <label class="opt-label">Role Title</label>
+            <input type="text" id="role-input" class="cl-input" placeholder="e.g. Senior Frontend Engineer"/>
+          </div>
+
+          <div class="opt-group">
+            <label class="opt-label">Unique Hook <span class="opt-opt">Optional</span></label>
+            <input type="text" id="hook-input" class="cl-input" placeholder="e.g. I contributed to your open-source library last year…"/>
+          </div>
+
+          <button class="generate-btn" id="generate-btn" onclick="generateLetter()">
+            <span id="gen-spinner" style="display:none">⟳</span>
+            ✨ Generate Cover Letter
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- OUTPUT SECTION -->
+  <section class="output-section" id="output-section" style="display:none">
+    <div class="output-wrap">
+
+      <!-- Letter preview -->
+      <div class="letter-panel">
+        <div class="lp-header">
+          <span class="lp-title">📄 Generated Cover Letter</span>
+          <div class="lp-actions">
+            <button class="lp-btn" onclick="copyLetter()">📋 Copy</button>
+            <button class="lp-btn" onclick="downloadPDF()">📥 PDF</button>
+            <button class="lp-btn" onclick="downloadDoc()">📄 DOC</button>
+            <button class="lp-btn lp-btn-regen" onclick="regenerate()">🔄 Regenerate</button>
+          </div>
+        </div>
+        <div class="letter-content" id="letter-content" contenteditable="true" spellcheck="true"></div>
+        <div class="lp-footer">
+          <span class="lp-wc" id="lp-wc">0 words</span>
+          <span class="lp-hint">Click anywhere in the letter to edit</span>
+        </div>
+      </div>
+
+      <!-- Analysis Panel -->
+      <div class="analysis-panel">
+        <div class="ap-card">
+          <div class="apc-title">📊 ATS Analysis</div>
+          <div class="ats-score-row">
+            <div class="ats-score-big" id="ats-score-big">—</div>
+            <div class="ats-score-lbl">ATS Score</div>
+          </div>
+          <div class="ats-bars" id="ats-bars"></div>
+        </div>
+
+        <div class="ap-card">
+          <div class="apc-title">🔑 Keywords Matched</div>
+          <div class="kw-matched" id="kw-matched"></div>
+        </div>
+
+        <div class="ap-card">
+          <div class="apc-title">⚡ Quick Improvements</div>
+          <div class="quick-tips" id="quick-tips"></div>
+        </div>
+
+        <div class="ap-card">
+          <div class="apc-title">🎨 Try Different Versions</div>
+          <div class="version-btns">
+            <button class="ver-btn" onclick="generateLetter('professional')">💼 Professional</button>
+            <button class="ver-btn" onclick="generateLetter('enthusiastic')">🔥 Enthusiastic</button>
+            <button class="ver-btn" onclick="generateLetter('concise')">⚡ Concise</button>
+            <button class="ver-btn" onclick="generateLetter('creative')">🎨 Creative</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+<script type="module" src="cover-letter.js"></script>
+</body>
+</html>

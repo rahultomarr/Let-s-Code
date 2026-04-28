@@ -141,20 +141,23 @@ window.compileLatex = function() {
 
   setTimeout(() => {
     try {
-      const cls   = currentTemplate?.class || '';
-      const html  = renderLatex(tex, cls);
-      const prev  = document.getElementById('resume-preview');
+      const cls  = currentTemplate?.class || '';
+      const html = renderLatex(tex, cls);
+      const prev = document.getElementById('resume-preview');
+      // Apply the template class to the preview element itself
+      prev.className = cls;
       prev.innerHTML = html;
       prev.style.display = 'block';
       const ms = Math.round(performance.now() - t0);
-      document.getElementById('compile-time').textContent = `Compiled in ${ms}ms`;
+      document.getElementById('compile-time').textContent = `✓ Compiled in ${ms}ms`;
       setSaveStatus('● Saved');
     } catch(e) {
       showError(e.message);
+      console.error(e);
     }
     spinner.style.display = 'none';
     btn.disabled = false;
-  }, 300);
+  }, 280);
 };
 
 function showError(msg) {
@@ -164,52 +167,61 @@ function showError(msg) {
 }
 
 // ===== LATEX → HTML RENDERER =====
+// Returns inner HTML string (not wrapped in #resume-preview div)
 export function renderLatex(tex, templateClass = '') {
-  // Remove comments
-  let t = tex.replace(/%.*$/gm, '');
-  // Remove preamble and \end{document}
+  // Strip comments
+  let t = tex.replace(/%[^\n]*/gm, '');
+  // Strip preamble + \end{document}
   t = t.replace(/\\documentclass[\s\S]*?\\begin\{document\}/m, '');
   t = t.replace(/\\end\{document\}/g, '');
 
-  // Handle sidebar template specially
+  // Sidebar template needs special handling
   if (templateClass === 'tmpl-sidebar') {
     return renderSidebarTemplate(t);
   }
 
   let html = '';
 
-  // Extract name from \begin{center} block
-  const nameMatch = t.match(/\\begin\{center\}([\s\S]*?)\\end\{center\}/);
-  if (nameMatch) {
-    const block = nameMatch[1];
-    const name  = extractArg(block.match(/\\Huge\s*\\textbf\{([^}]+)\}/)?.[0] || '') ||
-                  extractArg(block.match(/\\huge\s*\\textbf\{([^}]+)\}/)?.[0] || '') ||
-                  block.match(/\\Huge\s+([A-Z][^\\\n]+)/)?.[1]?.trim() || 'Your Name';
+  // ── Extract header from \begin{center}...\end{center} ──
+  const centerMatch = t.match(/\\begin\{center\}([\s\S]*?)\\end\{center\}/);
+  if (centerMatch) {
+    const block = centerMatch[1];
 
-    // Contact line
-    const contactLine = block.replace(/\\Huge[\s\S]*?\\\\/, '').replace(/\\vspace\{[^}]+\}/, '').trim();
-    const contactHtml = parseInline(contactLine.replace(/\$\|\$/g, '|').replace(/\\small\s*/g, ''));
+    // Name: look for \Huge \textbf{Name} or \huge\textbf{Name}
+    const nameMatch =
+      block.match(/\\(?:Huge|huge|LARGE)\s*\{?\s*\\textbf\{([^}]+)\}/) ||
+      block.match(/\\textbf\{([^}]{3,60})\}/) ||
+      block.match(/\{\s*\\(?:Huge|huge|Large)\s+([A-Z][^\\{\n]{2,40})\}/);
+    const name = nameMatch ? nameMatch[1].trim() : 'Your Name';
+
+    // Contact info: everything after the first \\
+    const afterName = block.replace(/\{\s*\\(?:Huge|huge|LARGE)[^}]*\}|\\(?:Huge|huge|LARGE)\s*\\textbf\{[^}]+\}[^\\]*\\\\/, '');
+    const contactRaw = afterName
+      .replace(/\\vspace\{[^}]+\}/g, '')
+      .replace(/\\small\s*/g, '')
+      .replace(/\\\\\s*/g, '')
+      .trim();
+    const contactHtml = parseInline(contactRaw.replace(/\$\|\$/g, '|'));
 
     html += `<div class="rv-name">${name}</div>`;
-    html += `<div class="rv-contact">${formatContact(contactHtml)}</div>`;
-    t = t.replace(nameMatch[0], '');
+    if (contactHtml.trim()) {
+      html += `<div class="rv-contact">${formatContact(contactHtml)}</div>`;
+    }
+    t = t.replace(centerMatch[0], '');
   }
 
-  // Summary/About as plain paragraph (before first \section)
-  const summaryMatch = t.match(/^([^\\]+(?:\\resumeItemListStart)?[^\\]*?)(?=\\section)/m);
-
-  // Process sections
+  // ── Render each \section ──
   const sectionRegex = /\\section\{([^}]+)\}([\s\S]*?)(?=\\section\{|$)/g;
-  let match;
-  while ((match = sectionRegex.exec(t)) !== null) {
-    const title   = match[1];
-    const body    = match[2];
+  let m;
+  while ((m = sectionRegex.exec(t)) !== null) {
+    const title = m[1];
+    const body  = m[2];
     html += `<div class="rv-section"><div class="rv-section-title">${title}</div>`;
     html += renderSectionBody(body);
     html += `</div>`;
   }
 
-  return `<div id="resume-preview" class="${templateClass}" style="display:block">${html}</div>`;
+  return html; // caller sets this as innerHTML of #resume-preview
 }
 
 function renderSectionBody(body) {
@@ -304,36 +316,37 @@ function renderItems(text) {
 
 function renderSidebarTemplate(tex) {
   const sidebarMatch = tex.match(/\\begin\{sidebar\}([\s\S]*?)\\end\{sidebar\}/);
-  const sidebarHtml = sidebarMatch ? sidebarMatch[1] : '';
+  const sidebarContent = sidebarMatch ? sidebarMatch[1] : '';
   const mainTex = sidebarMatch ? tex.replace(sidebarMatch[0], '') : tex;
 
-  const sideLines = sidebarHtml.split('\\\\').map(l => parseInline(l.trim())).filter(Boolean);
-  const name = extractArg(sidebarHtml.match(/\\Large\s*\\textbf\{([^}]+)\}/)?.[0] || '') || 'Name';
+  // Build sidebar HTML
+  const name = extractArg(sidebarContent.match(/\\Large\s*\\textbf\{([^}]+)\}/)?.[0] || '') || 'Name';
+  const lines = sidebarContent.split('\\\\').map(l => parseInline(l.trim())).filter(Boolean);
 
-  let sideContent = `<div class="rv-name">${name}</div><div class="rv-contact" style="flex-direction:column;align-items:flex-start">`;
-  let inSection = false;
-  sideLines.slice(1).forEach(l => {
-    if (l.match(/^[A-Z\s]+$/)) {
-      if (inSection) sideContent += '</div>';
-      sideContent += `<div style="margin-top:12px;font-size:8pt;font-weight:700;letter-spacing:.1em;opacity:.7">${l}</div><div style="margin-top:4px">`;
-      inSection = true;
+  let sideHtml = `<div style="font-size:18pt;font-weight:700;color:white;margin-bottom:8px">${name}</div>`;
+  let inGroup = false;
+  lines.slice(1).forEach(l => {
+    if (/^[A-Z][A-Z\s]{2,}$/.test(l)) {
+      if (inGroup) sideHtml += '</div>';
+      sideHtml += `<div style="margin-top:14px;font-size:7.5pt;font-weight:800;letter-spacing:.12em;opacity:.65;text-transform:uppercase">${l}</div><div style="margin-top:4px">`;
+      inGroup = true;
     } else {
-      sideContent += `<div style="font-size:9pt;margin:2px 0">${l}</div>`;
+      sideHtml += `<div style="font-size:8.5pt;margin:2px 0;opacity:.9">${l}</div>`;
     }
   });
-  if (inSection) sideContent += '</div>';
-  sideContent += '</div>';
+  if (inGroup) sideHtml += '</div>';
 
+  // Build main content HTML
   let mainHtml = '';
   const sectionRe = /\\section\{([^}]+)\}([\s\S]*?)(?=\\section\{|$)/g;
   let m;
   while ((m = sectionRe.exec(mainTex)) !== null) {
-    mainHtml += `<div class="rv-section"><div class="rv-section-title">${m[1]}</div>${renderSectionBody(m[2])}</div>`;
+    mainHtml += `<div class="rv-section"><div class="rv-section-title" style="color:#1a5276;border-color:#1a5276">${m[1]}</div>${renderSectionBody(m[2])}</div>`;
   }
 
-  return `<div class="tmpl-sidebar" style="display:grid;grid-template-columns:220px 1fr;min-height:100%">
-    <div class="rv-sidebar" style="background:#1a5276;color:white;padding:36px 20px">${sideContent}</div>
-    <div class="rv-main-content" style="padding:36px 32px">${mainHtml}</div>
+  return `<div style="display:grid;grid-template-columns:200px 1fr;min-height:1020px">
+    <div style="background:#1a5276;color:white;padding:32px 18px">${sideHtml}</div>
+    <div style="padding:32px 28px">${mainHtml}</div>
   </div>`;
 }
 
