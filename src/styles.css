@@ -103,7 +103,7 @@ img{max-width:100%;display:block}
 /* ===== AI TOOLS ===== */
 .tools-section{background:var(--bg)}
 .tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.tool-card{position:relative;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;display:flex;flex-direction:column;gap:12px;transition:var(--transition);overflow:hidden}
+.tool-card{position:relative;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;display:flex;flex-direction:column;gap:12px;transition:var(--transition);overflow:hidden;cursor:pointer;color:inherit;text-decoration:none}
 .tool-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,.05),transparent);opacity:0;transition:var(--transition)}
 .tool-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 8px 40px rgba(139,92,246,.1)}
 .tool-card:hover::before{opacity:1}

@@ -1,369 +1,472 @@
 import './mock-interview.css';
 
 // ===== THEME =====
-const saved = localStorage.getItem('theme');
+const saved = localStorage.getItem('lc-theme');
 if (saved) document.documentElement.setAttribute('data-theme', saved);
 document.getElementById('theme-btn')?.addEventListener('click', () => {
   const n = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', n);
-  localStorage.setItem('theme', n);
+  localStorage.setItem('lc-theme', n);
   document.getElementById('theme-btn').textContent = n === 'light' ? '🌙' : '☀️';
 });
 
-// ===== QUESTION BANKS =====
-const QUESTIONS = {
-  dsa: {
-    easy: [
-      { q:"Explain the difference between an array and a linked list. When would you use each?", hints:["Think about memory layout","Consider insertion/deletion at head vs tail","Access time differences"] },
-      { q:"What is a stack? Implement push, pop, and peek operations.", hints:["LIFO data structure","Think about call stack in recursion","Arrays or linked lists can be used"] },
-      { q:"Reverse a string without using built-in reverse. Explain your time & space complexity.", hints:["Two-pointer technique","Consider in-place reversal","O(n) time, O(1) space possible"] },
-      { q:"Find the maximum element in an array. What is its time complexity?", hints:["Single pass approach","O(n) time, O(1) space","Edge case: empty array"] },
-      { q:"Check if a number is a palindrome without converting to string.", hints:["Reverse the digits","Beware of negative numbers","Compare reversed half"] },
+// ===== STATE =====
+const S = {
+  type:'dsa', diff:'medium', company:'', total:5,
+  resumeText:'',
+  questions:[], current:0, spokenAnswers:[], scores:[],
+  timerInterval:null, elapsed:0,
+  recognition:null, isRecording:false,
+  synth: window.speechSynthesis,
+  currentTranscript:''
+};
+
+// ===== QUESTION BANK (conversational phrasing) =====
+const QB = {
+  dsa:{
+    easy:[
+      {q:"So, let's start with something fundamental. Can you explain the difference between an array and a linked list? And, like, when would you actually prefer using one over the other in a real project?",hints:["Memory layout","O(1) vs O(n) access","Insertion at head"]},
+      {q:"Alright, tell me about stacks. What exactly is a stack, and, um, can you give me a real-world example of where you'd use one? Walk me through the basic operations.",hints:["LIFO principle","Call stack","Undo/redo"]},
+      {q:"Okay, here's a classic one. How would you go about reversing a string, but, here's the catch, without using any built-in reverse functions? Think out loud for me.",hints:["Two-pointer","O(n) time","In-place swap"]},
+      {q:"This one's straightforward. If I give you an unsorted array, how do you find the maximum element? And what's the time complexity there? Any edge cases you'd worry about?",hints:["Linear scan","O(n)","Edge case: empty"]},
     ],
-    medium: [
-      { q:"Implement a LRU (Least Recently Used) Cache with O(1) get and O(1) put operations.", hints:["HashMap + Doubly Linked List","Move accessed node to front","Evict tail when capacity exceeded"] },
-      { q:"Find all pairs in an array that sum to a target. What's the optimal approach?", hints:["HashMap for O(n) solution","Two-pointer for sorted array","Handle duplicates"] },
-      { q:"Given a binary tree, find the maximum path sum. The path can start and end at any node.", hints:["DFS with recursion","At each node: max(left,0) + node + max(right,0)","Track global maximum"] },
-      { q:"Implement Merge Sort. Explain when it's preferred over Quick Sort.", hints:["Divide and conquer","Stable sort — preserves order of equals","O(n log n) always, extra space O(n)"] },
-      { q:"Detect a cycle in a linked list. Explain Floyd's cycle detection algorithm.", hints:["Fast and slow pointer","If they meet, cycle exists","Find cycle start: reset slow to head"] },
+    medium:[
+      {q:"Alright, let's step it up a bit. I want you to design an LRU cache, and both get and put need to be O of 1. Walk me through how you'd actually build that, step by step.",hints:["HashMap + Doubly Linked List","Move to front on access","Evict tail"]},
+      {q:"Okay, so, I have an array and a target sum. I need all pairs that add up to that target. What's the most efficient way you'd solve this? Think about the trade-offs.",hints:["HashMap O(n)","Two-pointer for sorted","Handle duplicates"]},
+      {q:"Here's an interesting one. You have a linked list, and it might have a cycle. How would you detect if there's a cycle, and if there is one, how do you find exactly where it starts?",hints:["Floyd's algorithm","Slow and fast pointer","Reset to head"]},
+      {q:"This is a tricky tree problem. Given a binary tree, find the maximum path sum, but the path can start and end at any node. How would you approach this?",hints:["DFS recursion","max(left,0)+node+max(right,0)","Track global max"]},
     ],
-    hard: [
-      { q:"Design a data structure that supports insert, delete, search, and getRandom all in O(1) time.", hints:["HashMap + resizable array","Track indices in the map","Swap with last element on delete"] },
-      { q:"Find the median of a data stream. How would you handle it efficiently?", hints:["Two heaps: max-heap + min-heap","Balance heaps after each insert","Median is top of one or average of both tops"] },
-      { q:"Given a 2D grid with obstacles, find the number of unique paths from top-left to bottom-right.", hints:["DP: dp[i][j] = dp[i-1][j] + dp[i][j-1]","Base case: dp[0][0] = 1","0 if obstacle at current cell"] },
-      { q:"Implement a Trie. Support insert, search, and startsWith. Analyse the complexities.", hints:["Node with children array/hashmap","isEnd flag at word end","O(m) for all ops, m = word length"] },
-      { q:"Serialize and deserialize a binary tree. Design an algorithm that can reconstruct the original tree.", hints:["BFS or DFS approach","Use '#' for null nodes","Pre-order traversal for easy deserialization"] },
+    hard:[
+      {q:"Okay, this one's a tough one. I need you to design a data structure that supports insert, delete, search, and get random, and all of them need to run in constant time. How would you do that?",hints:["HashMap + array","Track indices","Swap and pop on delete"]},
+      {q:"Alright, imagine you have a continuous stream of numbers coming in. How would you efficiently find the median at any given point? Walk me through your thinking.",hints:["Two heaps","Max-heap + min-heap","Balance after insert"]},
     ]
   },
-  system: {
-    easy: [
-      { q:"What is the difference between SQL and NoSQL databases? When would you choose each?", hints:["Schema vs schema-less","ACID vs BASE","Use cases: structured vs unstructured data"] },
-      { q:"Explain REST API principles. What makes an API RESTful?", hints:["Stateless, uniform interface","HTTP methods: GET, POST, PUT, DELETE","Resource-based URLs"] },
-      { q:"What is load balancing? Name two algorithms used.", hints:["Distribute requests across servers","Round Robin, Least Connections","Active-passive vs active-active"] },
+  system:{
+    easy:[
+      {q:"Let's talk about system design basics. What is load balancing, and why does it matter? Can you name, like, two common algorithms used for it?",hints:["Distribute traffic","Round Robin","Least Connections"]},
+      {q:"So, SQL versus NoSQL. I hear this debate a lot. Can you break down the key differences for me, and tell me when you'd actually choose one over the other?",hints:["Schema vs schemaless","ACID vs BASE","Structured vs unstructured"]},
     ],
-    medium: [
-      { q:"Design a URL shortener like bit.ly. Focus on high-level architecture, storage, and key generation.", hints:["Base62 encoding or MD5 hash","KV store for redirects","Handle custom short URLs, analytics"] },
-      { q:"Design a notification system that can handle millions of push notifications per day.", hints:["Message queue (Kafka/RabbitMQ)","Push vs pull model","Rate limiting, retry with backoff"] },
-      { q:"How would you design a rate limiter? What are the trade-offs between different algorithms?", hints:["Token bucket vs leaky bucket","Fixed window vs sliding window","Redis for distributed rate limiting"] },
+    medium:[
+      {q:"Alright, let's design something. Imagine you're building a URL shortener, kind of like bit.ly. Walk me through how you'd handle the storage, the key generation, and how you'd scale it.",hints:["Base62 encoding","KV store","Collision handling"]},
+      {q:"So, rate limiting, right? It's super important for APIs. How would you design a rate limiter? And can you compare, like, token bucket versus sliding window approaches?",hints:["Token bucket","Redis for distributed","Per-user limits"]},
     ],
-    hard: [
-      { q:"Design Netflix's video streaming system. Address storage, CDN, encoding, and reliability.", hints:["Adaptive bitrate streaming (DASH/HLS)","CDN for edge caching","Chunked upload, multiple quality levels"] },
-      { q:"Design a distributed cache like Redis. Handle consistency, eviction, and replication.", hints:["Write-through vs write-behind","LRU/LFU eviction policies","Leader-follower replication"] },
-      { q:"Design WhatsApp's messaging system for 2 billion users. Cover real-time delivery and storage.", hints:["WebSockets for real-time","Message queue for offline delivery","Sharding by user ID"] },
+    hard:[
+      {q:"This is a big one. How would you design a video streaming system like Netflix? Think about CDN, encoding, adaptive bitrate, and, you know, keeping it reliable at scale.",hints:["Adaptive bitrate","CDN edge caching","Chunked upload"]},
     ]
   },
-  hr: {
-    easy: [
-      { q:"Tell me about yourself and your background in software development.", hints:["Past-Present-Future structure","Highlight key achievements","Keep under 2 minutes"] },
-      { q:"Why do you want to work at this company?", hints:["Research the company's mission","Connect to your career goals","Be specific, not generic"] },
-      { q:"What are your biggest strengths as a developer?", hints:["Provide evidence for each strength","Align with job requirements","Be authentic, not rehearsed"] },
+  hr:{
+    easy:[
+      {q:"So, let's start with the classic. Tell me about yourself. Walk me through your journey so far, what you've been working on, and what brought you here today.",hints:["Past-Present-Future","Under 2 minutes","Connect to this role"]},
+      {q:"I'm curious, why this company specifically? Like, what is it about us that made you want to apply? I'd love to hear your genuine thought process there.",hints:["Research their mission","Align goals","Be specific"]},
     ],
-    medium: [
-      { q:"Tell me about a time you disagreed with your team or manager. How did you handle it?", hints:["STAR format: Situation, Task, Action, Result","Show maturity and communication","Focus on positive outcome"] },
-      { q:"Describe a project you're most proud of and your specific contribution.", hints:["Quantify your impact","Explain challenges faced","Highlight collaboration"] },
-      { q:"How do you handle working under tight deadlines or high pressure?", hints:["Concrete example","Prioritisation strategies","Show you remain calm and focused"] },
+    medium:[
+      {q:"Okay, here's a situational one. Tell me about a time you had a disagreement with your team, maybe about an approach or a decision. How did you handle that situation?",hints:["STAR format","Show maturity","Positive outcome"]},
+      {q:"What's a project you're really proud of? And I mean, specifically, what was your individual contribution? What challenges did you face?",hints:["Quantify impact","Challenges faced","Collaboration"]},
     ],
-    hard: [
-      { q:"Where do you see yourself in 5 years? How does this role fit into your long-term goals?", hints:["Show ambition but be realistic","Connect to the company's trajectory","Avoid 'your job' as the answer"] },
-      { q:"Tell me about a time you failed. What did you learn?", hints:["Choose a real failure, not 'I worked too hard'","Show accountability","Emphasise growth"] },
-      { q:"Describe a situation where you had to lead a team through a difficult technical challenge.", hints:["STAR format","Show both technical and leadership skills","Quantify the result"] },
+    hard:[
+      {q:"Alright, this one requires some honesty. Tell me about a time you failed at something significant. What happened, and more importantly, what did you take away from it?",hints:["Real failure","Accountability","Growth mindset"]},
     ]
   },
-  behavioural: {
-    easy: [
-      { q:"How do you prioritise tasks when you have multiple deadlines at the same time?", hints:["Eisenhower matrix or MoSCoW","Communication with stakeholders","Show systematic thinking"] },
-      { q:"Give an example of a time you helped a colleague who was struggling.", hints:["Show empathy and teamwork","Describe the impact","Don't take all the credit"] },
-      { q:"How do you stay updated with the latest technologies and trends in software development?", hints:["Specific resources: blogs, papers, podcasts","Side projects and open source","Community involvement"] },
+  full:{
+    easy:[{q:"If I asked you to build a simple CRUD REST API from scratch, right now, walk me through the steps. What stack would you pick, and why? How would you structure it?",hints:["Stack choice","DB schema","Auth"]}],
+    medium:[
+      {q:"Okay, imagine this scenario. There's a production bug, and it's affecting about 30 percent of your users. Walk me through exactly how you'd approach debugging that. Step by step.",hints:["Logging","Reproduce","Root cause"]},
+      {q:"In a fast-paced team that's shipping features every week, how do you actually maintain code quality? What practices have worked for you in the past?",hints:["Code reviews","CI/CD","Automated tests"]},
     ],
-    medium: [
-      { q:"Describe a time when you had to learn a completely new technology quickly for a project. How did you approach it?", hints:["Learning strategy","Seek help when needed","Show adaptability"] },
-      { q:"Tell me about a time you received critical feedback. How did you respond and what changed?", hints:["Openness to feedback","Specific actions taken","Measurable improvement"] },
-      { q:"Give an example of when you identified a problem before it became critical. What did you do?", hints:["Proactive mindset","Data or observations that led to insight","Business impact of the catch"] },
-    ],
-    hard: [
-      { q:"Describe a time when you had to influence a stakeholder who didn't have technical background to make an important decision.", hints:["Simplify technical concepts","Build trust through data","Focus on business impact"] },
-      { q:"Tell me about a time you disagreed with a technical decision that was already made. What did you do?", hints:["Voice concerns professionally","Decide when to escalate vs accept","Show you can commit even if you disagree"] },
-      { q:"Describe a situation where you had to balance technical debt with new feature development.", hints:["Quantify the cost of tech debt","Negotiation with product team","Short-term vs long-term thinking"] },
-    ]
+    hard:[{q:"So your team tells you the database is the bottleneck. The app is slowing down at scale. What do you do? Walk me through your investigation and solution process.",hints:["Indexing","Read replicas","Caching layer"]}]
   }
 };
 
-const FEEDBACK_TEMPLATES = {
-  excellent: { label:'Excellent Answer! 🏆', color:'#22c55e', min:8 },
-  good:      { label:'Good Answer ✅',       color:'#06b6d4', min:6 },
-  average:   { label:'Average Answer 📝',   color:'#f59e0b', min:4 },
-  weak:      { label:'Needs Improvement ⚠️', color:'#ef4444', min:0 },
+const INTROS = [
+  "Hey there! I'm Priya, and I'll be your interviewer today. So, I've gone through your profile, and I've put together some questions that I think will be really interesting. After each question, you'll get a few seconds to gather your thoughts, and then your mic will open up automatically. No pressure, just think out loud. Ready? Let's dive in.",
+  "Hi! Welcome. My name is Priya, and I'm really excited to chat with you today. So, here's how this is going to work. I'll ask you a question, you get a few seconds to think, and then you just start talking. Don't worry about being perfect. I'm much more interested in how you think. Alright, let's get started.",
+  "Hello! Great to meet you. I'm Priya. So, I'll be walking you through a few questions today, and honestly, I want this to feel more like a conversation than a formal interview. After each question, take a breath, collect your thoughts, and your mic will open right up. Sound good? Let's go."
+];
+
+// ===== SETUP INTERACTIONS =====
+window.toggleResumePanel = function() {
+  const p = document.getElementById('resume-panel');
+  const b = document.getElementById('rus-toggle');
+  const open = p.style.display !== 'none';
+  p.style.display = open ? 'none' : 'flex';
+  b.textContent = open ? 'Add Resume ↓' : 'Close ↑';
 };
 
-// ===== STATE =====
-const state = {
-  type:'dsa', diff:'medium', company:'', total:5,
-  questions:[], current:0, answers:[], scores:[],
-  timerInterval:null, elapsed:0
-};
+document.querySelectorAll('.topic-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    S.type = card.dataset.type || 'dsa';
+    const n = document.getElementById('cb-topic-name');
+    if (n) n.textContent = card.querySelector('.tc-name')?.textContent || 'DSA';
+  });
+});
 
-// ===== SETUP UI =====
-document.querySelectorAll('.type-pill').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.type-pill').forEach(x => x.classList.remove('active'));
-    b.classList.add('active'); state.type = b.dataset.type;
+document.querySelectorAll('.track-start-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    S.type = btn.dataset.type || 'dsa';
+    S.diff = btn.dataset.diff || 'medium';
+    S.company = btn.dataset.company || '';
+    S.total = 5;
+    startInterview();
   });
 });
-document.querySelectorAll('.diff-pill').forEach(b => {
+
+document.querySelectorAll('#diff-pills .cpill').forEach(b => {
   b.addEventListener('click', () => {
-    document.querySelectorAll('.diff-pill').forEach(x => x.classList.remove('active'));
-    b.classList.add('active'); state.diff = b.dataset.diff;
+    document.querySelectorAll('#diff-pills .cpill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    S.diff = b.dataset.val;
   });
 });
-document.querySelectorAll('.company-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.company-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active'); state.company = b.dataset.co;
-  });
-});
-const qSlider = document.getElementById('q-count');
-qSlider?.addEventListener('input', () => {
-  document.getElementById('q-count-val').textContent = `${qSlider.value} Questions`;
-  state.total = +qSlider.value;
-});
-document.getElementById('answer-input')?.addEventListener('input', e => {
-  document.getElementById('ap-char-count').textContent = `${e.target.value.length} / 2000 chars`;
+
+document.getElementById('company-select')?.addEventListener('change', e => { S.company = e.target.value; });
+document.getElementById('q-count-select')?.addEventListener('change', e => { S.total = +e.target.value; });
+document.getElementById('resume-text')?.addEventListener('input', e => { S.resumeText = e.target.value; });
+
+// File upload
+document.getElementById('upload-zone')?.addEventListener('click', () => document.getElementById('resume-file')?.click());
+document.getElementById('resume-file')?.addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => { S.resumeText = ev.target.result; document.getElementById('resume-text').value = S.resumeText.slice(0,3000); document.getElementById('resume-status').textContent = `✅ Loaded: ${f.name}`; };
+  r.readAsText(f);
 });
 
 // ===== START =====
-window.startInterview = function() {
-  const pool = QUESTIONS[state.type]?.[state.diff] || QUESTIONS.dsa.medium;
-  state.questions = shuffle([...pool]).slice(0, Math.min(state.total, pool.length));
-  state.current = 0; state.answers = []; state.scores = [];
-  state.total = state.questions.length;
-  document.getElementById('q-total').textContent = state.total;
-  document.getElementById('qp-type-badge').textContent = state.type.toUpperCase();
-  document.getElementById('qp-diff-badge').textContent = state.diff.charAt(0).toUpperCase() + state.diff.slice(1);
-  document.getElementById('setup-section').style.display = 'none';
-  document.getElementById('session-section').style.display = 'block';
-  showQuestion();
-  startTimer();
-};
+document.getElementById('big-start-btn')?.addEventListener('click', startInterview);
 
-function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+function startInterview() {
+  const pool = QB[S.type]?.[S.diff] || QB.dsa.medium;
+  S.questions = shuffle([...pool]).slice(0, Math.min(S.total, pool.length));
+  S.total = S.questions.length;
+  S.current = 0; S.spokenAnswers = []; S.scores = [];
 
-function startTimer() {
-  clearInterval(state.timerInterval);
-  state.elapsed = 0;
-  state.timerInterval = setInterval(() => {
-    state.elapsed++;
-    const m = String(Math.floor(state.elapsed/60)).padStart(2,'0');
-    const s = String(state.elapsed%60).padStart(2,'0');
-    document.getElementById('qp-timer').textContent = `⏱ ${m}:${s}`;
+  document.getElementById('screen-setup').style.display = 'none';
+  document.getElementById('screen-interview').style.display = 'block';
+  document.getElementById('q-total').textContent = S.total;
+  document.getElementById('q-type-badge').textContent = S.type.toUpperCase();
+  document.getElementById('q-diff-badge').textContent = cap(S.diff);
+
+  startClock();
+  const intro = INTROS[Math.floor(Math.random() * INTROS.length)];
+  setStatus('Priya is introducing herself…');
+  typeQuestion(intro, () => speak(intro, () => setTimeout(askQuestion, 600)));
+}
+
+function askQuestion() {
+  const q = S.questions[S.current];
+  if (!q) return;
+  document.getElementById('q-num').textContent = `Q${S.current + 1}`;
+  document.getElementById('progress-fill').style.width = `${(S.current / S.total) * 100}%`;
+  const prefix = S.company ? `[${S.company}] ` : '';
+  const full = prefix + q.q;
+  setStatus('Priya is asking a question…');
+  setSpeakingAI(true);
+  typeQuestion(full, () => speak(full, () => { setSpeakingAI(false); startCountdown(5); }));
+}
+
+// ===== COUNTDOWN → AUTO MIC =====
+function startCountdown(secs) {
+  const overlay = document.getElementById('countdown-overlay');
+  const numEl = document.getElementById('cd-number');
+  const path = document.getElementById('cd-circle-path');
+  const total = 276;
+  overlay.style.display = 'flex';
+  setStatus(`Think time — mic opens in ${secs}s`);
+  let left = secs;
+  numEl.textContent = left;
+  path.style.strokeDashoffset = '0';
+
+  const interval = setInterval(() => {
+    left--;
+    numEl.textContent = left;
+    const offset = total * (1 - left / secs);
+    path.style.strokeDashoffset = offset;
+    setStatus(`Think time — mic opens in ${left}s`);
+    if (left <= 0) {
+      clearInterval(interval);
+      overlay.style.display = 'none';
+      startAutoRecording();
+    }
   }, 1000);
 }
 
-function showQuestion() {
-  const q = state.questions[state.current];
-  if (!q) return;
-  document.getElementById('q-current').textContent = `Q${state.current+1}`;
-  const pct = (state.current / state.total) * 100;
-  document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('question-content').innerHTML = `
-    <div class="q-text">${q.q}</div>
-    ${state.company ? `<div class="q-company">📍 ${state.company} style</div>` : ''}`;
-  document.getElementById('answer-input').value = '';
-  document.getElementById('ap-char-count').textContent = '0 / 2000 chars';
-  document.getElementById('q-hints').style.display = 'block';
-  document.getElementById('hint-body').style.display = 'none';
-  document.getElementById('hint-toggle-icon').textContent = '▼';
-  document.getElementById('hint-body').innerHTML = `<ul>${q.hints.map(h => `<li>${h}</li>`).join('')}</ul>`;
-  document.getElementById('feedback-section').style.display = 'none';
-  document.getElementById('session-section').style.display = 'block';
-  state.elapsed = 0;
+// ===== AUTO RECORDING =====
+function startAutoRecording() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    setStatus('Voice not supported — skipping this question');
+    setTimeout(skipQuestion, 2000);
+    return;
+  }
+  S.currentTranscript = '';
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  S.recognition = new SR();
+  S.recognition.continuous = true;
+  S.recognition.interimResults = true;
+  S.recognition.lang = 'en-IN';
+
+  S.recognition.onstart = () => {
+    S.isRecording = true;
+    document.getElementById('recording-overlay').style.display = 'flex';
+    document.getElementById('stop-rec-btn').style.display = 'inline-flex';
+    document.getElementById('mic-indicator')?.querySelector('.mic-dot')?.classList.add('active');
+    setStatus('🎙 Recording your answer…');
+    animateVoiceBars(true);
+  };
+
+  S.recognition.onresult = e => {
+    S.currentTranscript = Array.from(e.results).map(r => r[0].transcript).join(' ');
+  };
+
+  let silenceTimer;
+  S.recognition.onspeechend = () => {
+    silenceTimer = setTimeout(() => { if (S.isRecording) stopRecording(); }, 3000);
+  };
+
+  S.recognition.onend = () => {
+    clearTimeout(silenceTimer);
+    if (S.isRecording) {
+      S.isRecording = false;
+      finishAnswer();
+    }
+  };
+
+  S.recognition.onerror = () => { S.isRecording = false; finishAnswer(); };
+  S.recognition.start();
 }
 
-window.toggleHints = function() {
-  const body = document.getElementById('hint-body');
-  const icon = document.getElementById('hint-toggle-icon');
-  const show = body.style.display === 'none';
-  body.style.display = show ? 'block' : 'none';
-  icon.textContent = show ? '▲' : '▼';
+window.stopRecording = function() {
+  if (S.recognition) { S.recognition.stop(); }
+  S.isRecording = false;
 };
 
-window.clearAnswer = function() { document.getElementById('answer-input').value = ''; document.getElementById('ap-char-count').textContent = '0 / 2000 chars'; };
-
-window.useSpeech = function() {
-  const btn = document.getElementById('speech-btn');
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Speech recognition not supported in this browser. Try Chrome.'); return;
-  }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SR();
-  recognition.continuous = true; recognition.interimResults = true;
-  const ta = document.getElementById('answer-input');
-  const base = ta.value;
-  btn.textContent = '🔴 Listening…'; btn.style.color = 'var(--red)';
-  recognition.onresult = e => {
-    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
-    ta.value = base + ' ' + transcript;
-    document.getElementById('ap-char-count').textContent = `${ta.value.length} / 2000 chars`;
-  };
-  recognition.onend = () => { btn.textContent = '🎙 Voice'; btn.style.color = ''; };
-  recognition.start();
-  setTimeout(() => recognition.stop(), 30000);
-};
-
-// ===== SUBMIT =====
-window.submitAnswer = function() {
-  const answer = document.getElementById('answer-input').value.trim();
-  state.answers.push(answer);
-  document.getElementById('session-section').style.display = 'none';
-  document.getElementById('feedback-section').style.display = 'block';
-  document.getElementById('fb-loading').style.display = 'flex';
-  document.getElementById('fb-content').style.display = 'none';
-  setTimeout(() => showFeedback(answer), 1400 + Math.random() * 600);
-};
+function finishAnswer() {
+  document.getElementById('recording-overlay').style.display = 'none';
+  document.getElementById('stop-rec-btn').style.display = 'none';
+  animateVoiceBars(false);
+  setStatus('Processing your answer…');
+  S.spokenAnswers.push(S.currentTranscript);
+  const score = scoreAnswer(S.currentTranscript, S.questions[S.current]);
+  S.scores.push(score);
+  const reactions = score >= 8 ? [
+    "Oh, that was really good. I like how you structured that. Alright, let's move on to the next one.",
+    "Nice! You clearly know this well. Great explanation. Okay, moving on.",
+    "Yeah, that's exactly what I was looking for. Well done. Let's keep going.",
+    "Hmm, excellent. You covered the key points really well there. Next question."
+  ] : score >= 6 ? [
+    "Good, good. You hit the main points. I'd love a bit more depth next time, but solid overall. Let's continue.",
+    "That's a decent answer. You're on the right track. Let me throw the next one at you.",
+    "Yeah, okay, I see where you're going with that. Let's move to the next question."
+  ] : score >= 4 ? [
+    "Alright, I see you have some understanding there. Let's keep practicing. On to the next one.",
+    "Hmm, okay. There's some room to improve on that one, but don't worry. Let's keep going.",
+    "That's a start. Try to be a bit more specific next time. Alright, next question."
+  ] : [
+    "Okay, no worries. That's what practice is for, right? Let's keep moving.",
+    "Hmm, that one was tough. Don't stress about it. Let's try the next one.",
+    "Alright, let's move on. Sometimes a question just doesn't click, and that's totally fine."
+  ];
+  const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+  setTimeout(() => {
+    speak(reaction, () => {
+      if (S.current + 1 >= S.total) showResults();
+      else { S.current++; askQuestion(); }
+    });
+  }, 600);
+}
 
 window.skipQuestion = function() {
-  state.answers.push('');
-  state.scores.push(0);
-  if (state.current + 1 >= state.total) { showResults(); return; }
-  state.current++;
-  showQuestion();
+  if (S.recognition) { S.recognition.stop(); S.isRecording = false; }
+  document.getElementById('recording-overlay').style.display = 'none';
+  document.getElementById('countdown-overlay').style.display = 'none';
+  document.getElementById('stop-rec-btn').style.display = 'none';
+  S.spokenAnswers.push('');
+  S.scores.push(0);
+  if (S.current + 1 >= S.total) showResults();
+  else { S.current++; askQuestion(); }
 };
 
-function showFeedback(answer) {
-  const q = state.questions[state.current];
-  const score = evaluateAnswer(answer, q);
-  state.scores.push(score);
-
-  const template = score >= 8 ? FEEDBACK_TEMPLATES.excellent
-    : score >= 6 ? FEEDBACK_TEMPLATES.good
-    : score >= 4 ? FEEDBACK_TEMPLATES.average
-    : FEEDBACK_TEMPLATES.weak;
-
-  // Animate ring
-  const circle = document.getElementById('fb-circle');
-  const offset = 214 - (214 * score / 10);
-  setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
-
-  document.getElementById('fb-score').textContent = score;
-  document.getElementById('fb-verdict-text').textContent = template.label;
-  document.getElementById('fb-verdict-text').style.color = template.color;
-  document.getElementById('fb-q-recap').textContent = q.q.slice(0, 80) + (q.q.length > 80 ? '…' : '');
-
-  const { strengths, improvements, model } = generateFeedback(score, answer, q, state.type);
-
-  document.getElementById('fb-strengths').className = 'fb-sec fb-sec-strengths';
-  document.getElementById('fb-strengths').innerHTML = `<h4>✅ Strengths</h4><ul>${strengths.map(s=>`<li>${s}</li>`).join('')}</ul>`;
-
-  document.getElementById('fb-improvements').className = 'fb-sec fb-sec-improvements';
-  document.getElementById('fb-improvements').innerHTML = `<h4>⚡ Areas to Improve</h4><ul>${improvements.map(s=>`<li>${s}</li>`).join('')}</ul>`;
-
-  document.getElementById('fb-model').className = 'fb-sec fb-sec-model';
-  document.getElementById('fb-model').innerHTML = `<h4>💡 Model Answer Outline</h4><div class="fb-model-text">${model}</div>`;
-
-  const isLast = state.current + 1 >= state.total;
-  const btn = document.getElementById('next-question-btn');
-  btn.textContent = isLast ? '📊 See Results →' : 'Next Question →';
-
-  document.getElementById('fb-loading').style.display = 'none';
-  document.getElementById('fb-content').style.display = 'block';
-  document.getElementById('fb-circle').style.strokeDashoffset = offset;
+// ===== NATURAL TTS (sentence-by-sentence with pauses) =====
+let _chosenVoice = null;
+function pickVoice() {
+  if (_chosenVoice) return _chosenVoice;
+  const voices = S.synth.getVoices();
+  // Priority: Natural/Neural female voices > Google female > any female > any English
+  _chosenVoice =
+    voices.find(v => /natural|neural/i.test(v.name) && /female|samantha|zira|victoria|karen|moira|fiona|tessa|rishi/i.test(v.name) && v.lang.startsWith('en')) ||
+    voices.find(v => /samantha|victoria|karen|moira|fiona|zira|tessa/i.test(v.name) && v.lang.startsWith('en')) ||
+    voices.find(v => v.name.includes('Google') && v.lang === 'en-US') ||
+    voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
+    voices.find(v => v.lang.startsWith('en-US')) ||
+    voices.find(v => v.lang.startsWith('en-')) ||
+    voices[0];
+  return _chosenVoice;
 }
 
-function evaluateAnswer(answer, q) {
-  if (!answer || answer.length < 20) return 1;
-  let score = 4;
-  const words = answer.toLowerCase().split(/\s+/);
-  const len = answer.length;
-  if (len > 200) score++;
-  if (len > 500) score++;
-  // Keyword check from hints
-  q.hints.forEach(h => {
-    const kws = h.toLowerCase().split(/\s+/).filter(w => w.length > 4);
-    if (kws.some(k => words.includes(k))) score++;
+// Split text into sentences for natural pacing
+function splitSentences(text) {
+  return text.match(/[^.!?]+[.!?]+[\s]?|[^.!?]+$/g)?.map(s => s.trim()).filter(Boolean) || [text];
+}
+
+function speak(text, cb) {
+  if (!S.synth) { if (cb) cb(); return; }
+  S.synth.cancel();
+  const sentences = splitSentences(text);
+  const voice = pickVoice();
+  let idx = 0;
+  setSpeakingAI(true);
+
+  function speakNext() {
+    if (idx >= sentences.length) {
+      setSpeakingAI(false);
+      if (cb) cb();
+      return;
+    }
+    const sentence = sentences[idx];
+    const utt = new SpeechSynthesisUtterance(sentence);
+    // Vary rate and pitch slightly per sentence for natural feel
+    const baseRate = 0.88;
+    const basePitch = 1.1;
+    utt.rate = baseRate + (Math.random() * 0.12 - 0.04); // 0.84 – 0.96
+    utt.pitch = basePitch + (Math.random() * 0.1 - 0.05); // 1.05 – 1.15
+    utt.volume = 1;
+    if (voice) utt.voice = voice;
+
+    utt.onend = () => {
+      idx++;
+      // Natural pause between sentences (200–600ms)
+      const pause = 200 + Math.random() * 400;
+      setTimeout(speakNext, pause);
+    };
+    utt.onerror = () => {
+      idx++;
+      setTimeout(speakNext, 200);
+    };
+    S.synth.speak(utt);
+  }
+  speakNext();
+}
+
+// ===== TYPING ANIMATION =====
+function typeQuestion(text, cb) {
+  const typing = document.getElementById('aqb-typing');
+  const bubble = document.getElementById('aqb-text');
+  typing.style.display = 'flex'; bubble.style.display = 'none';
+  const delay = Math.min(text.length * 15, 1200);
+  setTimeout(() => {
+    typing.style.display = 'none'; bubble.style.display = 'block';
+    bubble.textContent = '';
+    let i = 0;
+    const iv = setInterval(() => { bubble.textContent += text[i++]; if (i >= text.length) { clearInterval(iv); if (cb) cb(); } }, 16);
+  }, delay);
+}
+
+function setSpeakingAI(speaking) {
+  const ring = document.getElementById('ai-speaking-ring');
+  const dot = document.getElementById('ai-live-dot');
+  if (speaking) { ring?.classList.add('active'); if (dot) dot.style.background = '#8b5cf6'; }
+  else { ring?.classList.remove('active'); if (dot) dot.style.background = '#22c55e'; }
+}
+
+function animateVoiceBars(on) {
+  document.querySelectorAll('#voice-bars .vb').forEach((b,i) => {
+    if (on) { b.classList.add('active'); b.style.animationDelay = `${i*0.07}s`; }
+    else { b.classList.remove('active'); b.style.height = '8px'; }
   });
-  // Complexity mention for DSA
-  if (state.type === 'dsa' && /o\(|complexity|time|space/i.test(answer)) score++;
-  if (/example|instance|for example|such as/i.test(answer)) score += 0.5;
+}
+
+function setStatus(msg) { const el = document.getElementById('cv-status'); if (el) el.textContent = msg; }
+
+function startClock() {
+  clearInterval(S.timerInterval); S.elapsed = 0;
+  S.timerInterval = setInterval(() => {
+    S.elapsed++;
+    const m = String(Math.floor(S.elapsed/60)).padStart(2,'0');
+    const s = String(S.elapsed%60).padStart(2,'0');
+    const el = document.getElementById('session-timer'); if (el) el.textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+// ===== SCORING =====
+function scoreAnswer(answer, q) {
+  if (!answer || answer.trim().length < 10) return 1;
+  let score = 3;
+  const words = answer.toLowerCase();
+  if (answer.length > 100) score++;
+  if (answer.length > 250) score++;
+  if (answer.length > 450) score++;
+  q.hints.forEach(h => { if (h.toLowerCase().split(' ').filter(w=>w.length>4).some(k=>words.includes(k))) score++; });
+  if (S.type === 'dsa' && /complexity|o\(|linear|quadratic|time|space/i.test(answer)) score++;
+  if (/example|instance|such as|for instance/i.test(answer)) score += 0.5;
   return Math.min(10, Math.round(Math.max(1, score)));
 }
 
-function generateFeedback(score, answer, q, type) {
-  const len = answer.length;
-  const strengths = [];
-  const improvements = [];
-
-  if (len > 400) strengths.push('Detailed and well-structured answer');
-  else improvements.push('Expand your answer with more detail and examples');
-
-  if (/example|instance|for example/i.test(answer)) strengths.push('Good use of concrete examples');
-  else improvements.push('Add real-world examples to strengthen your answer');
-
-  if (type === 'dsa' && /o\(|complexity|time|space/i.test(answer)) strengths.push('Mentioned time/space complexity — excellent!');
-  else if (type === 'dsa') improvements.push('Always state the time and space complexity');
-
-  if (type === 'system' && /trade.?off|pros|cons|vs\b/i.test(answer)) strengths.push('Good analysis of trade-offs');
-  else if (type === 'system') improvements.push('Discuss trade-offs between different approaches');
-
-  if (/\b(i|we|my|our)\b/i.test(answer) && /hr|behavioural/.test(type)) strengths.push('Personal ownership shown with first-person examples');
-  if (q.hints.some(h => answer.toLowerCase().includes(h.toLowerCase().split(' ')[0]))) strengths.push('Covered key technical concepts correctly');
-
-  if (strengths.length === 0) strengths.push('You attempted the question');
-  if (improvements.length === 0) improvements.push('Practice articulating trade-offs more clearly');
-
-  const model = q.hints.join(' → ') + '. Structure: define concept → explain approach → state complexity → give example.';
-  return { strengths: strengths.slice(0,3), improvements: improvements.slice(0,3), model };
-}
-
-window.showHint = function() { document.getElementById('q-hints').scrollIntoView({ behavior:'smooth' }); };
-
-window.nextQuestion = function() {
-  if (state.current + 1 >= state.total) { showResults(); return; }
-  state.current++;
-  showQuestion();
-};
-
 // ===== RESULTS =====
 function showResults() {
-  clearInterval(state.timerInterval);
-  document.getElementById('session-section').style.display = 'none';
-  document.getElementById('feedback-section').style.display = 'none';
-  document.getElementById('results-section').style.display = 'block';
+  clearInterval(S.timerInterval);
+  S.synth?.cancel();
+  document.getElementById('screen-interview').style.display = 'none';
+  document.getElementById('screen-results').style.display = 'block';
 
-  const avg = state.scores.length ? (state.scores.reduce((a,b)=>a+b,0) / state.scores.length).toFixed(1) : 0;
-  const pct = Math.round((avg / 10) * 100);
-  const grade = pct >= 85 ? 'Excellent 🏆' : pct >= 70 ? 'Good ✅' : pct >= 55 ? 'Average 📝' : 'Needs Practice ⚠️';
+  const avg = S.scores.length ? +(S.scores.reduce((a,b)=>a+b,0)/S.scores.length).toFixed(1) : 0;
+  const pct = Math.round(avg*10);
+  const grade = pct>=85?'Excellent 🏆':pct>=70?'Good ✅':pct>=55?'Average 📝':'Keep Practising ⚠️';
 
-  document.getElementById('rc-big-score').textContent = `${avg}/10`;
-  document.getElementById('rc-grade').textContent = grade;
+  document.getElementById('rp-big-score').textContent = `${avg}/10`;
+  document.getElementById('rp-grade').textContent = grade;
 
-  const breakdown = document.getElementById('rc-breakdown');
-  breakdown.innerHTML = state.scores.map((s, i) => `
-    <div class="rc-row">
-      <span class="rc-row-label">Q${i+1}</span>
-      <div class="rc-bar-wrap"><div class="rc-bar" style="width:${s*10}%"></div></div>
-      <span class="rc-row-score">${s}/10</span>
+  document.getElementById('rp-breakdown').innerHTML = S.scores.map((s,i) => `
+    <div class="rp-row">
+      <span class="rp-row-lbl">Q${i+1}</span>
+      <div class="rp-bar-wrap"><div class="rp-bar" style="width:0%" data-w="${s*10}%"></div></div>
+      <span class="rp-row-score">${s}/10</span>
     </div>`).join('');
+  setTimeout(() => { document.querySelectorAll('.rp-bar').forEach(b => { b.style.width = b.dataset.w; }); }, 100);
 
-  const tips = getTips(state.type, avg);
-  document.getElementById('rc-tips').innerHTML = `<h4>🎯 Improvement Tips</h4><ul>${tips.map(t=>`<li>${t}</li>`).join('')}</ul>`;
-}
+  const comment = avg>=8 ? `Outstanding performance! You demonstrated strong conceptual clarity and communicated your ideas very well. You're interview-ready.` :
+    avg>=6 ? `Good effort overall. You covered the key concepts. To improve further, focus on adding concrete examples and mentioning complexity for DSA answers.` :
+    avg>=4 ? `You showed understanding of the basics, but there's room to grow. Practice structuring answers with the STAR method and being more specific.` :
+    `Keep practising! Focus on the fundamentals and try answering out loud daily. Confidence and clarity will come with repetition.`;
 
-function getTips(type, avg) {
-  const base = [
-    'Practice explaining your thought process out loud before writing code',
-    'Use the STAR method for all behavioural answers',
-    'Research the company — mention their tech stack and challenges',
-  ];
-  const specific = {
-    dsa:['Revise Big-O notation and always mention complexity','Practice coding on paper or whiteboard','LeetCode: solve 2 mediums per day'],
-    system:['Learn CAP theorem and distributed systems fundamentals','Study case studies: Amazon, Netflix, Uber architectures','Read "Designing Data-Intensive Applications"'],
-    hr:['Record yourself answering to review your delivery','Prepare 10 STAR stories covering different competencies','Research the company culture and values'],
-    behavioural:['Build a story bank of 10+ real work experiences','Quantify every achievement with numbers','Practice concise answers — 90 to 120 seconds max'],
+  document.getElementById('rpc-bubble').textContent = comment;
+  speak(comment);
+
+  const allAnswers = S.spokenAnswers.join(' ');
+  const strengths = [], improvements = [];
+  if (avg >= 7) strengths.push('Strong conceptual understanding across questions');
+  if (/example|instance/i.test(allAnswers)) strengths.push('Good use of real-world examples');
+  if (S.type==='dsa' && /complexity|o\(/i.test(allAnswers)) strengths.push('Mentioned time/space complexity');
+  if (allAnswers.length > 500) strengths.push('Detailed, well-elaborated answers');
+  if (strengths.length===0) strengths.push('You attempted all questions — that takes courage');
+  if (avg < 8) improvements.push('Add specific examples to every answer');
+  if (S.type==='dsa' && !/complexity/i.test(allAnswers)) improvements.push('Always state time and space complexity for DSA');
+  if (S.type==='system') improvements.push('Discuss trade-offs and scalability considerations');
+  improvements.push('Structure answers: Define → Approach → Example → Complexity');
+  if (improvements.length===0) improvements.push('Try articulating trade-offs even more clearly');
+
+  document.getElementById('rp-strengths').innerHTML = `<h4>✅ Strengths</h4><ul>${strengths.slice(0,3).map(s=>`<li>${s}</li>`).join('')}</ul>`;
+  document.getElementById('rp-improvements').innerHTML = `<h4>⚡ Areas to Improve</h4><ul>${improvements.slice(0,3).map(s=>`<li>${s}</li>`).join('')}</ul>`;
+
+  const tips = {
+    dsa:['Practise 2 LeetCode mediums every day','Think out loud — explain every step','Always mention Big-O complexity'],
+    system:['Study real architectures: Netflix, Uber, WhatsApp','Read "Designing Data-Intensive Applications"','Draw diagrams when explaining'],
+    hr:['Record yourself and review your delivery','Prepare 10+ STAR stories','Research company culture deeply'],
+    full:['Build and deploy a full-stack project','Practise both DSA and system design together','Contribute to open source']
   };
-  return [...(specific[type] || []), ...base].slice(0,4);
+  const tipList = tips[S.type] || tips.dsa;
+  document.getElementById('rp-tips').innerHTML = `<h4>🎯 Improvement Plan</h4><ul>${tipList.map(t=>`<li>${t}</li>`).join('')}</ul>`;
 }
 
 window.restartInterview = function() {
-  document.getElementById('results-section').style.display = 'none';
-  document.getElementById('setup-section').style.display = 'block';
-  state.scores = []; state.answers = []; state.current = 0;
+  S.synth?.cancel(); clearInterval(S.timerInterval);
+  S.scores=[]; S.spokenAnswers=[]; S.current=0;
+  document.getElementById('screen-results').style.display='none';
+  document.getElementById('screen-setup').style.display='block';
 };
+
+// ===== UTILS =====
+function shuffle(arr) { return arr.sort(()=>Math.random()-.5); }
+function cap(s) { return s ? s[0].toUpperCase()+s.slice(1) : ''; }
+window.speechSynthesis?.addEventListener?.('voiceschanged', ()=>window.speechSynthesis.getVoices());

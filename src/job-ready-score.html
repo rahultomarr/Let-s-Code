@@ -25,6 +25,16 @@
         <span class="logo-icon">}</span>
       </a>
       <div class="nav-actions">
+        <div class="tools-dropdown" style="position:relative">
+          <button class="theme-toggle" style="width:auto;padding:0 14px;font-size:.8rem;font-weight:600;color:var(--text-muted);border:1px solid var(--border);border-radius:var(--radius);background:transparent;cursor:pointer;height:40px;font-family:var(--font)" onmouseenter="this.nextElementSibling.style.display='flex'" onmouseleave="">🛠 Tools ▾</button>
+          <div style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--bg-card,#111113);border:1px solid var(--border);border-radius:12px;padding:6px;min-width:210px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.4);flex-direction:column" onmouseenter="this.style.display='flex'" onmouseleave="this.style.display='none'">
+            <a href="job-ready-score.html" style="padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:700;background:rgba(139,92,246,.15);color:#a78bfa;text-decoration:none;display:block">🎯 Job Ready Score</a>
+            <a href="mock-interview.html" style="padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:500;color:var(--text-muted);text-decoration:none;display:block">🤖 Mock Interview</a>
+            <a href="ai-resume-studio.html" style="padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:500;color:var(--text-muted);text-decoration:none;display:block">📄 AI Resume Studio</a>
+            <a href="resume-builder.html" style="padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:500;color:var(--text-muted);text-decoration:none;display:block">📝 LaTeX Builder</a>
+            <a href="cover-letter.html" style="padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:500;color:var(--text-muted);text-decoration:none;display:block">✉️ Cover Letter AI</a>
+          </div>
+        </div>
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
           <span class="theme-icon-sun">☀️</span>
           <span class="theme-icon-moon">🌙</span>

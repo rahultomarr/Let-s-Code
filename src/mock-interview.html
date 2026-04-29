@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>AI Mock Interview — Let's Code</title>
-  <meta name="description" content="Practice real interview questions with AI. Get instant feedback on your answers for DSA, System Design, and HR rounds."/>
+  <title>AI Live Interview — Let's Code</title>
+  <meta name="description" content="Experience a real face-to-face AI interview personalized from your resume. Voice-to-voice conversation with an AI interviewer."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="mock-interview.css"/>
@@ -14,188 +14,311 @@
 <nav class="navbar">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">{"<span>Let's Code</span>"}</a>
-    <span class="nav-badge">🎤 AI Mock Interview</span>
+    <span class="nav-badge">🎤 AI Live Interview</span>
     <div class="nav-right">
+      <div class="tools-dropdown">
+        <button class="tools-menu-btn">🛠 Tools ▾</button>
+        <div class="tools-menu">
+          <a href="job-ready-score.html" class="tools-menu-item">🎯 Job Ready Score</a>
+          <a href="mock-interview.html" class="tools-menu-item active">🤖 Mock Interview</a>
+          <a href="ai-resume-studio.html" class="tools-menu-item">📄 AI Resume Studio</a>
+          <a href="resume-builder.html" class="tools-menu-item">📝 LaTeX Builder</a>
+          <a href="cover-letter.html" class="tools-menu-item">✉️ Cover Letter AI</a>
+        </div>
+      </div>
       <button class="theme-btn" id="theme-btn">🌙</button>
       <a href="index.html" class="ghost-btn">← Home</a>
     </div>
   </div>
 </nav>
+<style>
+.tools-dropdown{position:relative}
+.tools-menu-btn{padding:7px 14px;border:1px solid var(--border,#2a2a2e);border-radius:8px;background:transparent;color:var(--muted,#a1a1aa);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+.tools-menu-btn:hover{color:var(--text,#f4f4f5);border-color:#8b5cf6}
+.tools-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--card,#1a1a1e);border:1px solid var(--border,#2a2a2e);border-radius:12px;padding:6px;min-width:200px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.tools-dropdown:hover .tools-menu{display:flex;flex-direction:column}
+.tools-menu-item{padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:500;color:var(--muted,#a1a1aa);transition:.15s;white-space:nowrap;text-decoration:none;display:block}
+.tools-menu-item:hover{background:rgba(139,92,246,.12);color:#a78bfa}
+.tools-menu-item.active{background:rgba(139,92,246,.15);color:#a78bfa;font-weight:700}
+</style>
 
 <main>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-grid"></div>
-    <div class="orb orb1"></div><div class="orb orb2"></div>
-    <div class="hero-content">
-      <div class="hero-badge"><span class="bdot"></span>AI-Powered · Real Questions · Instant Feedback</div>
-      <h1>AI <span class="gtext">Mock Interview</span></h1>
-      <p class="hero-sub">Practice DSA, System Design & HR rounds. Get scored answers with detailed feedback — like a real interview panel.</p>
-      <div class="hero-chips">
-        <span class="chip">💻 DSA</span><span class="chip">🏗 System Design</span><span class="chip">🤝 HR Round</span><span class="chip">🎯 Behavioural</span>
+  <!-- ===== SCREEN 1: SETUP ===== -->
+  <section id="screen-setup" class="screen active">
+    <div class="setup-hero">
+      <div class="hero-grid"></div>
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="setup-hero-content">
+        <div class="hero-badge"><span class="bdot"></span>AI-Powered · 1200+ Questions · Voice Interview</div>
+        <h1>Start Preparing for Your<br/><span class="gtext">Campus Placement</span></h1>
+        <p class="hero-sub">Choose from 24+ topics and let our AI conduct a personalized face-to-face mock interview based on your resume.</p>
+        <div class="hero-stats-row">
+          <div class="hsr-item"><span class="hsr-num">24+</span><span class="hsr-lbl">Topics</span></div>
+          <div class="hsr-div"></div>
+          <div class="hsr-item"><span class="hsr-num">1200+</span><span class="hsr-lbl">Questions</span></div>
+          <div class="hsr-div"></div>
+          <div class="hsr-item"><span class="hsr-num">AI</span><span class="hsr-lbl">Interviewer</span></div>
+        </div>
       </div>
+    </div>
+
+    <div class="topics-container">
+
+      <!-- Resume Upload (collapsed) -->
+      <div class="resume-upload-strip" id="resume-strip">
+        <div class="rus-left">
+          <span class="rus-icon">📄</span>
+          <div>
+            <div class="rus-title">Upload Resume <span class="rus-badge">Personalizes questions</span></div>
+            <div class="rus-sub">PDF, DOC, DOCX or paste text — optional but recommended</div>
+          </div>
+        </div>
+        <button class="rus-toggle" id="rus-toggle" onclick="toggleResumePanel()">Add Resume ↓</button>
+      </div>
+      <div class="resume-panel" id="resume-panel" style="display:none">
+        <textarea id="resume-text" class="resume-textarea" placeholder="Paste your resume here…&#10;&#10;Include: Skills, Work Experience, Projects, Education"></textarea>
+        <div class="upload-zone-inline" id="upload-zone">
+          <input type="file" id="resume-file" accept=".pdf,.doc,.docx,.txt" hidden/>
+          📎 Or drop / click to upload a file
+        </div>
+        <div id="resume-status" class="resume-status"></div>
+      </div>
+
+      <!-- DSA Topics -->
+      <div class="topic-section">
+        <h2 class="ts-title">💻 Data Structures & Algorithms</h2>
+        <p class="ts-sub">Choose from 24+ DSA topics for your mock interview</p>
+        <div class="topic-grid" id="dsa-grid">
+          <div class="topic-card" data-type="dsa" data-tag="Arrays"><div class="tc-icon">📊</div><div class="tc-name">Arrays</div><div class="tc-count">45 Qs</div></div>
+          <div class="topic-card" data-type="dsa" data-tag="Linked Lists"><div class="tc-icon">🔗</div><div class="tc-name">Linked Lists</div><div class="tc-count">38 Qs</div></div>
+          <div class="topic-card" data-type="dsa" data-tag="Trees"><div class="tc-icon">🌳</div><div class="tc-name">Trees</div><div class="tc-count">52 Qs</div></div>
+          <div class="topic-card" data-type="dsa" data-tag="Graphs"><div class="tc-icon">🕸</div><div class="tc-name">Graphs</div><div class="tc-count">40 Qs</div></div>
+          <div class="topic-card" data-type="dsa" data-tag="Dynamic Programming"><div class="tc-icon">⚡</div><div class="tc-name">Dynamic Programming</div><div class="tc-count">60 Qs</div></div>
+          <div class="topic-card" data-type="dsa" data-tag="Stacks & Queues"><div class="tc-icon">📚</div><div class="tc-name">Stacks & Queues</div><div class="tc-count">30 Qs</div></div>
+          <div class="topic-card" data-type="dsa" data-tag="Sorting"><div class="tc-icon">🔢</div><div class="tc-name">Sorting</div><div class="tc-count">25 Qs</div></div>
+          <div class="topic-card" data-type="dsa" data-tag="Binary Search"><div class="tc-icon">🔍</div><div class="tc-name">Binary Search</div><div class="tc-count">28 Qs</div></div>
+        </div>
+      </div>
+
+      <!-- System Design -->
+      <div class="topic-section">
+        <h2 class="ts-title">🏗 System Design & Architecture</h2>
+        <p class="ts-sub">High-level and low-level design questions</p>
+        <div class="topic-grid">
+          <div class="topic-card" data-type="system" data-tag="HLD"><div class="tc-icon">🗺</div><div class="tc-name">High Level Design</div><div class="tc-count">35 Qs</div></div>
+          <div class="topic-card" data-type="system" data-tag="LLD"><div class="tc-icon">🔧</div><div class="tc-name">Low Level Design</div><div class="tc-count">28 Qs</div></div>
+          <div class="topic-card" data-type="system" data-tag="Databases"><div class="tc-icon">🗄</div><div class="tc-name">Databases</div><div class="tc-count">40 Qs</div></div>
+          <div class="topic-card" data-type="system" data-tag="Scalability"><div class="tc-icon">📈</div><div class="tc-name">Scalability</div><div class="tc-count">22 Qs</div></div>
+        </div>
+      </div>
+
+      <!-- HR & Behavioural -->
+      <div class="topic-section">
+        <h2 class="ts-title">🤝 HR & Behavioural</h2>
+        <p class="ts-sub">Soft skills, leadership, and situational questions</p>
+        <div class="topic-grid">
+          <div class="topic-card" data-type="hr" data-tag="HR Round"><div class="tc-icon">👔</div><div class="tc-name">HR Round</div><div class="tc-count">30 Qs</div></div>
+          <div class="topic-card" data-type="hr" data-tag="Behavioural"><div class="tc-icon">🎯</div><div class="tc-name">Behavioural</div><div class="tc-count">25 Qs</div></div>
+          <div class="topic-card" data-type="full" data-tag="Full Stack"><div class="tc-icon">🚀</div><div class="tc-name">Full Stack</div><div class="tc-count">48 Qs</div></div>
+          <div class="topic-card" data-type="full" data-tag="FAANG Prep"><div class="tc-icon">🏆</div><div class="tc-name">FAANG Prep</div><div class="tc-count">45 Qs</div></div>
+        </div>
+      </div>
+
+      <!-- Popular Tracks -->
+      <div class="topic-section">
+        <h2 class="ts-title">🔥 Popular Interview Tracks</h2>
+        <div class="tracks-grid">
+          <div class="track-card" data-type="dsa" data-diff="hard">
+            <div class="track-badge">FAANG</div>
+            <div class="track-icon">🏆</div>
+            <h3>FAANG Interview Prep</h3>
+            <p>Targeted practice for top tech company interviews</p>
+            <ul><li>45+ company-specific questions</li><li>System design challenges</li><li>Behavioural interview prep</li></ul>
+            <button class="track-start-btn" data-type="dsa" data-diff="hard" data-company="Google">Start Track →</button>
+          </div>
+          <div class="track-card" data-type="dsa" data-diff="medium">
+            <div class="track-icon">🌳</div>
+            <h3>Data Structures Mastery</h3>
+            <p>Comprehensive review of core data structures</p>
+            <ul><li>Arrays, Linked Lists, Trees</li><li>Graphs, Hash Tables, Heaps</li><li>Progressive difficulty levels</li></ul>
+            <button class="track-start-btn" data-type="dsa" data-diff="medium" data-company="">Start Track →</button>
+          </div>
+          <div class="track-card" data-type="system" data-diff="medium">
+            <div class="track-icon">⚙️</div>
+            <h3>Backend Developer Path</h3>
+            <p>Specialised practice for backend engineering roles</p>
+            <ul><li>API design challenges</li><li>Database optimisation</li><li>Scalability & performance</li></ul>
+            <button class="track-start-btn" data-type="system" data-diff="medium" data-company="">Start Track →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Config bar -->
+      <div class="config-bar">
+        <div class="cb-left">
+          <div class="cb-selection" id="cb-selection">
+            <span class="cb-sel-icon">💻</span>
+            <span id="cb-topic-name">DSA</span>
+            <span class="cb-dot">·</span>
+            <div class="pill-row-inline" id="diff-pills">
+              <button class="cpill active" data-val="easy">Easy</button>
+              <button class="cpill active-sel" data-val="medium">Medium</button>
+              <button class="cpill" data-val="hard">Hard</button>
+            </div>
+            <span class="cb-dot">·</span>
+            <select class="cb-select" id="company-select">
+              <option value="">Any Company</option>
+              <option value="Google">Google</option>
+              <option value="Amazon">Amazon</option>
+              <option value="Microsoft">Microsoft</option>
+              <option value="Meta">Meta</option>
+              <option value="Flipkart">Flipkart</option>
+              <option value="Startup">Startup</option>
+            </select>
+            <span class="cb-dot">·</span>
+            <select class="cb-select" id="q-count-select">
+              <option value="3">3 Questions</option>
+              <option value="5" selected>5 Questions</option>
+              <option value="7">7 Questions</option>
+              <option value="10">10 Questions</option>
+            </select>
+          </div>
+        </div>
+        <button class="big-start-btn" id="big-start-btn">
+          🎤 Start AI Interview →
+        </button>
+      </div>
+
     </div>
   </section>
 
-  <!-- SETUP -->
-  <section class="setup-section" id="setup-section">
-    <div class="setup-card">
-      <h2 class="sc-title">Configure Your Interview</h2>
-      <div class="setup-grid">
-        <div class="sg-group">
-          <label class="sg-label">Interview Type</label>
-          <div class="type-pills" id="type-pills">
-            <button class="type-pill active" data-type="dsa">💻 DSA</button>
-            <button class="type-pill" data-type="system">🏗 System Design</button>
-            <button class="type-pill" data-type="hr">🤝 HR Round</button>
-            <button class="type-pill" data-type="behavioural">🎯 Behavioural</button>
+  <!-- ===== SCREEN 2: INTERVIEW SESSION ===== -->
+
+
+  <!-- ===== SCREEN 2: INTERVIEW ===== -->
+  <section id="screen-interview" class="screen" style="display:none">
+    <div class="call-layout">
+
+      <!-- AI Video Card -->
+      <div class="ai-video-card" id="ai-video-card">
+        <div class="av-bg-glow"></div>
+        <img src="ai-avatar.png" class="ai-photo" id="ai-photo" alt="Priya - AI Interviewer"/>
+        <div class="ai-speaking-ring" id="ai-speaking-ring"></div>
+        <div class="ai-info-bar">
+          <div class="ai-info-left">
+            <div class="ai-live-dot" id="ai-live-dot"></div>
+            <div>
+              <div class="ai-info-name">Priya</div>
+              <div class="ai-info-role">Senior Engineer · AI Interviewer</div>
+            </div>
           </div>
+          <div class="session-clock" id="session-timer">00:00</div>
         </div>
-        <div class="sg-group">
-          <label class="sg-label">Difficulty</label>
-          <div class="diff-pills" id="diff-pills">
-            <button class="diff-pill active" data-diff="easy">🟢 Easy</button>
-            <button class="diff-pill" data-diff="medium">🟡 Medium</button>
-            <button class="diff-pill" data-diff="hard">🔴 Hard</button>
-          </div>
+        <div class="ai-question-bubble" id="ai-question-bubble">
+          <div class="aqb-typing" id="aqb-typing"><span></span><span></span><span></span></div>
+          <div class="aqb-text" id="aqb-text" style="display:none"></div>
         </div>
-        <div class="sg-group">
-          <label class="sg-label">Target Company <span class="opt-tag">Optional</span></label>
-          <div class="company-grid" id="company-grid">
-            <button class="company-btn active" data-co="">Any</button>
-            <button class="company-btn" data-co="Google">Google</button>
-            <button class="company-btn" data-co="Amazon">Amazon</button>
-            <button class="company-btn" data-co="Microsoft">Microsoft</button>
-            <button class="company-btn" data-co="Flipkart">Flipkart</button>
-            <button class="company-btn" data-co="Infosys">Infosys</button>
-            <button class="company-btn" data-co="TCS">TCS</button>
-            <button class="company-btn" data-co="Startup">Startup</button>
-          </div>
-        </div>
-        <div class="sg-group">
-          <label class="sg-label">Number of Questions</label>
-          <div class="qcount-row">
-            <input type="range" id="q-count" min="3" max="15" value="5" class="q-slider"/>
-            <span class="q-count-val" id="q-count-val">5 Questions</span>
+        <div class="q-progress-row">
+          <div class="qpr-label"><span id="q-num">Q1</span> of <span id="q-total">5</span></div>
+          <div class="qpr-bar"><div class="qpr-fill" id="progress-fill" style="width:0%"></div></div>
+          <div class="qpr-badges">
+            <span class="qpr-badge type" id="q-type-badge">DSA</span>
+            <span class="qpr-badge diff" id="q-diff-badge">Medium</span>
           </div>
         </div>
       </div>
-      <button class="start-btn" id="start-btn" onclick="startInterview()">🎤 Start Interview →</button>
-    </div>
-  </section>
 
-  <!-- INTERVIEW SESSION -->
-  <section class="session-section" id="session-section" style="display:none">
-    <div class="session-wrap">
-
-      <!-- Left: Question panel -->
-      <div class="question-panel">
-        <div class="qp-header">
-          <div class="qp-progress">
-            <span id="q-current">Q1</span> of <span id="q-total">5</span>
-          </div>
-          <div class="qp-meta">
-            <span class="qp-type-badge" id="qp-type-badge">DSA</span>
-            <span class="qp-diff-badge" id="qp-diff-badge">Medium</span>
-          </div>
-          <div class="qp-timer" id="qp-timer">⏱ 00:00</div>
-        </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
-        </div>
-        <div class="question-content" id="question-content">
-          <div class="q-loading"><div class="q-spin"></div>Generating question…</div>
-        </div>
-        <div class="q-hints" id="q-hints" style="display:none">
-          <div class="hint-header" onclick="toggleHints()">💡 Hints <span id="hint-toggle-icon">▼</span></div>
-          <div class="hint-body" id="hint-body" style="display:none"></div>
-        </div>
-      </div>
-
-      <!-- Right: Answer panel -->
-      <div class="answer-panel">
-        <div class="ap-header">
-          <span class="ap-label">Your Answer</span>
-          <div class="ap-tools">
-            <button class="ap-tool-btn" onclick="clearAnswer()">🗑 Clear</button>
-            <button class="ap-tool-btn" onclick="useSpeech()" id="speech-btn">🎙 Voice</button>
+      <!-- Candidate Card -->
+      <div class="candidate-video-card" id="candidate-card">
+        <div class="cv-cam-area">
+          <div class="cv-cam-placeholder">
+            <div class="cv-user-icon">👤</div>
+            <span>You</span>
           </div>
         </div>
-        <textarea id="answer-input" class="answer-textarea" placeholder="Type your answer here… Be detailed — use examples, explain trade-offs, mention time/space complexity for DSA."></textarea>
-        <div class="ap-footer">
-          <span class="ap-char-count" id="ap-char-count">0 / 2000 chars</span>
-          <button class="skip-btn" onclick="skipQuestion()">Skip →</button>
-          <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Submit Answer ✓</button>
-        </div>
-      </div>
 
-    </div>
-  </section>
-
-  <!-- FEEDBACK -->
-  <section class="feedback-section" id="feedback-section" style="display:none">
-    <div class="feedback-card">
-      <div class="fb-loading" id="fb-loading">
-        <div class="fb-spinner"></div>
-        <div class="fb-load-text">AI is evaluating your answer…</div>
-      </div>
-      <div class="fb-content" id="fb-content" style="display:none">
-        <div class="fb-header">
-          <div class="fb-score-ring">
-            <svg viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="6"/>
-              <circle cx="40" cy="40" r="34" fill="none" stroke="url(#fbGrad)" stroke-width="6"
-                stroke-linecap="round" stroke-dasharray="214" stroke-dashoffset="214"
-                transform="rotate(-90 40 40)" id="fb-circle" style="transition:stroke-dashoffset 1.2s ease"/>
-              <defs><linearGradient id="fbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#06b6d4"/>
+        <!-- Countdown overlay -->
+        <div class="countdown-overlay" id="countdown-overlay" style="display:none">
+          <div class="cd-circle">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="6"/>
+              <circle cx="50" cy="50" r="44" fill="none" stroke="url(#cdGrad)" stroke-width="6"
+                stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="0"
+                transform="rotate(-90 50 50)" id="cd-circle-path"/>
+              <defs><linearGradient id="cdGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#8b5cf6"/>
+                <stop offset="100%" style="stop-color:#06b6d4"/>
               </linearGradient></defs>
             </svg>
-            <div class="fb-ring-inner"><span id="fb-score">0</span><span class="fb-ring-lbl">/10</span></div>
+            <div class="cd-number" id="cd-number">5</div>
           </div>
-          <div class="fb-verdict">
-            <div class="fb-verdict-text" id="fb-verdict-text">—</div>
-            <div class="fb-q-recap" id="fb-q-recap"></div>
+          <div class="cd-label">Think time…</div>
+        </div>
+
+        <!-- Recording overlay -->
+        <div class="recording-overlay" id="recording-overlay" style="display:none">
+          <div class="rec-dot-ring"><div class="rec-dot"></div></div>
+          <div class="rec-label">Recording…</div>
+          <div class="voice-bars" id="voice-bars">
+            <div class="vb"></div><div class="vb"></div><div class="vb"></div>
+            <div class="vb"></div><div class="vb"></div><div class="vb"></div>
+            <div class="vb"></div><div class="vb"></div>
           </div>
         </div>
-        <div class="fb-sections">
-          <div class="fb-sec" id="fb-strengths"></div>
-          <div class="fb-sec" id="fb-improvements"></div>
-          <div class="fb-sec" id="fb-model-answer"></div>
-        </div>
-        <div class="fb-actions">
-          <button class="fb-btn fb-btn-primary" id="next-question-btn" onclick="nextQuestion()">Next Question →</button>
-          <button class="fb-btn fb-btn-outline" onclick="showHint()">💡 Show Hint</button>
+
+        <div class="cv-bottom-bar">
+          <div class="cv-status" id="cv-status">Waiting for question…</div>
+          <button class="stop-rec-btn" id="stop-rec-btn" onclick="stopRecording()" style="display:none">⏹ Done Answering</button>
+          <button class="skip-q-btn" onclick="skipQuestion()">Skip →</button>
         </div>
       </div>
+
     </div>
   </section>
 
-  <!-- RESULTS -->
-  <section class="results-section" id="results-section" style="display:none">
-    <div class="results-card">
-      <div class="rc-header">
-        <div class="rc-icon">🏆</div>
-        <h2>Interview Complete!</h2>
-        <p class="rc-sub">Here's your full performance report</p>
+  <!-- ===== SCREEN 3: RESULTS ===== -->
+  <section id="screen-results" class="screen" style="display:none">
+    <div class="results-page">
+      <div class="rp-header">
+        <img src="ai-avatar.png" class="rp-avatar" alt="Priya"/>
+        <div>
+          <div class="rp-title">Interview Complete!</div>
+          <div class="rp-sub">Here's Priya's assessment of your performance</div>
+        </div>
       </div>
-      <div class="rc-score-row">
-        <div class="rc-big-score" id="rc-big-score">—</div>
-        <div class="rc-score-label">Overall Score</div>
-        <div class="rc-grade" id="rc-grade">—</div>
+
+      <div class="rp-score-card">
+        <div class="rp-score-left">
+          <div class="rp-big-score" id="rp-big-score">—</div>
+          <div class="rp-score-lbl">Overall Score</div>
+          <div class="rp-grade" id="rp-grade">—</div>
+        </div>
+        <div class="rp-score-right" id="rp-breakdown"></div>
       </div>
-      <div class="rc-breakdown" id="rc-breakdown"></div>
-      <div class="rc-tips" id="rc-tips"></div>
-      <div class="rc-actions">
-        <button class="fb-btn fb-btn-primary" onclick="restartInterview()">🔄 Try Again</button>
-        <button class="fb-btn fb-btn-outline" onclick="window.location.href='job-ready-score.html'">📊 Job Ready Score</button>
+
+      <div class="rp-priya-comment" id="rp-priya-comment">
+        <img src="ai-avatar.png" class="rpc-avatar" alt="Priya"/>
+        <div class="rpc-bubble" id="rpc-bubble"></div>
+      </div>
+
+      <div class="rp-sections">
+        <div class="rp-sec strengths-sec" id="rp-strengths"></div>
+        <div class="rp-sec improve-sec" id="rp-improvements"></div>
+      </div>
+
+      <div class="rp-tips" id="rp-tips"></div>
+
+      <div class="rp-actions">
+        <button class="rp-btn-primary" onclick="restartInterview()">🔄 New Interview</button>
+        <button class="rp-btn-outline" onclick="window.location.href='job-ready-score.html'">📊 Job Ready Score</button>
+        <button class="rp-btn-outline" onclick="window.location.href='resume-builder.html'">📝 Improve Resume</button>
       </div>
     </div>
   </section>
 
 </main>
-
 <script type="module" src="mock-interview.js"></script>
 </body>
 </html>
